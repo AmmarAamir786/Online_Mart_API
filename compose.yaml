@@ -8,7 +8,7 @@ services:
       context: ./product-service
       dockerfile: Dockerfile
     volumes:
-      - ./product-service:/code  # Sync local development directory with the container
+      - ./product-service:/app  # Sync local development directory with the container
     depends_on:
       - kafka-ui
       - broker
@@ -20,7 +20,7 @@ services:
       context: ./product-consumer-service
       dockerfile: Dockerfile
     volumes:
-      - ./product-consumer-service:/code  # Sync local development directory with the container
+      - ./product-consumer-service:/app  # Sync local development directory with the container
     depends_on:
       - product_db
       - broker
@@ -92,7 +92,7 @@ services:
   #     context: ./user-service
   #     dockerfile: Dockerfile
   #   volumes:
-  #     - ./user-service:/code  # Sync local development directory with the container
+  #     - ./user-service:/app  # Sync local development directory with the container
   #   depends_on:
   #       - user_db
   #       - broker

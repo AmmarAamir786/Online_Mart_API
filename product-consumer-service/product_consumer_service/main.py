@@ -5,7 +5,7 @@ import logging
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI
 from product_consumer_service.models import Product
-from sqlmodel import SQLModel, Session, select
+from sqlmodel import Session, select
 from product_consumer_service import product_pb2
 from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_PRODUCT_TOPIC
 from product_consumer_service.db import create_tables, engine, get_session
