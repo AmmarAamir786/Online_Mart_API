@@ -10,15 +10,27 @@ services:
     volumes:
       - ./product-service:/code  # Sync local development directory with the container
     depends_on:
-      - product_db
+      - kafka-ui
       - broker
     ports:
       - "8000:8000"  # Expose container port 8000 to host port 8000 
 
+  product-consumer-service:
+    build:
+      context: ./product-consumer-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./product-consumer-service:/code  # Sync local development directory with the container
+    depends_on:
+      - product_db
+      - broker
+    ports:
+      - "8001:8000"  # Expose container port 8000 to host port 8000 
+
   product_db:
     image: postgres:latest  # Use the official PostgreSQL image
     restart: always
-    container_name: Product_db
+    container_name: Product_db_Cont
     environment:
         - POSTGRES_USER=ammar
         - POSTGRES_PASSWORD=my_password
@@ -28,31 +40,43 @@ services:
     volumes:
         - product_db:/var/lib/postgresql/data
 
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./user-service:/code  # Sync local development directory with the container
-    depends_on:
-        - user_db
-        - broker
-    ports:
-      - "8001:8000"  # Expose container port 8000 to host port 8000  
+  # product_consumer_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: product_Consumer_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=product_consumer_db
+  #   ports:
+  #       - '5434:5432'
+  #   volumes:
+  #       - product_consumer_db:/var/lib/postgresql/data
 
+  # user-service:
+  #   build:
+  #     context: ./user-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./user-service:/code  # Sync local development directory with the container
+  #   depends_on:
+  #       - user_db
+  #       - broker
+  #   ports:
+  #     - "8001:8000"  # Expose container port 8000 to host port 8000  
 
-  user_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: User_db
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=user_db
-    ports:
-        - '5434:5432'
-    volumes:
-        - user_db:/var/lib/postgresql/data
+  # user_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: User_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=user_db
+  #   ports:
+  #       - '5434:5432'
+  #   volumes:
+  #       - user_db:/var/lib/postgresql/data
 
   broker:
     image: apache/kafka:3.7.0
@@ -91,9 +115,10 @@ services:
 volumes:
   product_db:
     driver: local
-
-  user_db:
-    driver: local
+  # user_db:
+  #   driver: local
+  # product_consumer_db:
+  #   driver: local
 
 networks:
   default:

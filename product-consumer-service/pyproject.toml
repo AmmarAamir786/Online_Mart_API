@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "db-service"
+name = "product-consumer-service"
 version = "0.1.0"
 description = ""
 authors = ["Ammar Aamir <ammaraamir609@gmail.com>"]
@@ -11,8 +11,10 @@ fastapi = "^0.110.1"
 uvicorn = "^0.29.0"
 sqlmodel = "^0.0.16"
 psycopg = {extras = ["binary"], version = "^3.1.18"}
+pytest = "^8.2.0"
+httpx = "^0.27.0"
 aiokafka = "^0.10.0"
-protobuf = "^5.26.1"
+protobuf = "^5.27.0"
 
 [build-system]
 requires = ["poetry-core"]

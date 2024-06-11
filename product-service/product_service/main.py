@@ -1,12 +1,68 @@
+import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator, List
-from fastapi import Depends, FastAPI, HTTPException
-from product_service.models import Product, Product_Update
-from sqlmodel import Session, select
+import json
+from typing import Annotated, Any, AsyncGenerator
+from fastapi import Depends, FastAPI
+from product_service import product_pb2
+from product_service.models import Product, ProductUpdate
+from product_service.setting import BOOTSTRAP_SERVER, KAFKA_PRODUCT_TOPIC
+from aiokafka import AIOKafkaProducer
+from aiokafka.errors import KafkaConnectionError
+from aiokafka.admin import AIOKafkaAdminClient, NewTopic
+
+
+MAX_RETRIES = 5
+RETRY_INTERVAL = 10
+
+
+async def create_topic():
+    admin_client = AIOKafkaAdminClient(bootstrap_servers=BOOTSTRAP_SERVER)
+
+    retries = 0
+
+    while retries < MAX_RETRIES:
+        try:
+            await admin_client.start()
+            topic_list = [NewTopic(name=KAFKA_PRODUCT_TOPIC,
+                                num_partitions=2, 
+                                replication_factor=1)]
+            try:
+                await admin_client.create_topics(new_topics=topic_list, validate_only=False)
+                print(f"Topic '{KAFKA_PRODUCT_TOPIC}' created successfully")
+            except Exception as e:
+                print(f"Failed to create topic '{KAFKA_PRODUCT_TOPIC}': {e}")
+            finally:
+                await admin_client.close()
+            return
+        
+        except KafkaConnectionError:
+            retries += 1 
+            print(f"Kafka connection failed. Retrying {retries}/{MAX_RETRIES}...")
+            await asyncio.sleep(RETRY_INTERVAL)
+        
+    raise Exception("Failed to connect to kafka broker after several retries")
+
+
+async def kafka_producer() -> AsyncGenerator[AIOKafkaProducer, None]:
+    producer = AIOKafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER)
+    retries = 0
+    while retries < MAX_RETRIES:
+        try:
+            await producer.start()
+            break
+        except KafkaConnectionError as e:
+            retries += 1
+            print(f"Kafka connection failed. Retrying {retries}/{MAX_RETRIES}... Error: {e}")
+            await asyncio.sleep(RETRY_INTERVAL)
+    try:
+        yield producer
+    finally:
+        await producer.stop()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    await create_topic()
     yield
 
 
@@ -16,6 +72,27 @@ app = FastAPI(lifespan=lifespan, title="Product Service", version='1.0.0')
 @app.get('/')
 async def root() -> Any:
     return {"message": "Welcome to products section"}
+
+
+@app.post('/products/', response_model=Product)
+async def create_product(
+    product: Product,
+    producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
+):
+    
+    # serialized_product = json.dumps(product.__dict__).encode('utf-8')
+    product_proto = product_pb2.Product()
+    product_proto.name = product.name
+    product_proto.price = product.price
+    product_proto.quantity = product.quantity
+    product_proto.description = product.description
+    product_proto.operation = product_pb2.OperationType.CREATE
+    
+    serialized_product = product_proto.SerializeToString()
+    await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
+
+    return {"Product" : "Created"}
+
 
 # @app.get('/products/', response_model=List[Product])
 # async def get_all_products(session: Session = Depends(get_session)) -> List[Product]:
@@ -35,27 +112,29 @@ async def root() -> Any:
 #         raise HTTPException(status_code=404, detail="Product not found")
     
 
-# @app.put('/products/{id}', response_model=Product)
-# async def edit_product(id: int, product: Product_Update, session: Session = Depends(get_session)) -> Product:
-#     existing_product = session.get(Product, id)
-#     if existing_product:
-#         existing_product.name = product.name
-#         existing_product.price = product.price
-#         existing_product.quantity = product.quantity
-#         session.add(existing_product)
-#         session.commit()
-#         session.refresh(existing_product)
-#         return existing_product
-#     else:
-#         raise HTTPException(status_code=404, detail="Product not found")
+@app.put('/products/', response_model=Product)
+async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
+    product_proto = product_pb2.Product()
+    product_proto.id = product.id
+    product_proto.name = product.name
+    product_proto.price = product.price
+    product_proto.quantity = product.quantity
+    product_proto.description = product.description
+    product_proto.operation = product_pb2.OperationType.UPDATE
+    
+    serialized_product = product_proto.SerializeToString()
+    await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
+
+    return {"Product" : "Updated"}
     
 
-# @app.delete('/products/{id}')
-# async def delete_product(id: int, session: Session = Depends(get_session)) -> Any:
-#     product = session.get(Product, id)
-#     if product:
-#         session.delete(product)
-#         session.commit()
-#         return {"message": "Product successfully deleted"}
-#     else:
-#         raise HTTPException(status_code=404, detail="Product not found")
+@app.delete('/products/')
+async def delete_product(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
+    product_proto = product_pb2.Product()
+    product_proto.id = id
+    product_proto.operation = product_pb2.OperationType.DELETE
+
+    serialized_product = product_proto.SerializeToString()
+    await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
+
+    return {"Product" : "Deleted"}
