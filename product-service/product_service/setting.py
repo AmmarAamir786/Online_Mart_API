@@ -1,6 +1,4 @@
 from starlette.config import Config
-from starlette.datastructures import Secret
-
 
 try:
     config = Config(".env")
@@ -11,3 +9,5 @@ except FileNotFoundError:
 BOOTSTRAP_SERVER = config("KAFKA_SERVER", cast=str)
 KAFKA_PRODUCT_TOPIC = config("KAFKA_PRODUCT_TOPIC", cast=str)
 
+#BOOTSTRAP_SERVER = "broker:19092"
+#KAFKA_PRODUCT_TOPIC = "product_topic"

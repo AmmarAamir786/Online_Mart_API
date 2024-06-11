@@ -10,3 +10,4 @@ class Product (BaseModel):
 
 class ProductUpdate(Product):
     id: int
+    
