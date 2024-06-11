@@ -1,6 +1,5 @@
 import asyncio
 from contextlib import asynccontextmanager
-import json
 import logging
 
 from aiokafka import AIOKafkaConsumer
@@ -26,8 +25,6 @@ async def lifespan(app: FastAPI):
     task.cancel()
     await task
 
-def create_tables() -> None:
-    SQLModel.metadata.create_all(engine)
 
 logging.basicConfig(level= logging.INFO)
 logger = logging.getLogger(__name__)
