@@ -89,3 +89,6 @@ async def consume_products():
     finally:
         await consumer.stop()
         logger.info("Consumer stopped")
+
+
+app = FastAPI(lifespan=lifespan, title="Product Consumer Service", version='1.0.0')
