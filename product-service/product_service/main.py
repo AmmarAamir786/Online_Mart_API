@@ -125,7 +125,7 @@ async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProdu
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 
-    return serialized_product
+    return {"Product" : "Updated"}
     
 
 @app.delete('/products/')
@@ -137,4 +137,4 @@ async def delete_product(id: int, producer: Annotated[AIOKafkaProducer, Depends(
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 
-    return serialized_product
+    return {"Product" : "Deleted"}
