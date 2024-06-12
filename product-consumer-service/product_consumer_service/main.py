@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     print("Tables Created")
 
     loop = asyncio.get_event_loop()
-    task = loop.create_task(consume_orders())
+    task = loop.create_task(consume_products())
     yield
 
     task.cancel()
@@ -30,7 +30,7 @@ logging.basicConfig(level= logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-async def consume_orders():
+async def consume_products():
     consumer = AIOKafkaConsumer(
         KAFKA_PRODUCT_TOPIC,
         bootstrap_servers=BOOTSTRAP_SERVER,

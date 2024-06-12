@@ -74,7 +74,7 @@ async def root() -> Any:
     return {"message": "Welcome to products section"}
 
 
-@app.post('/products/', response_model=Product)
+@app.post('/products/')
 async def create_product(
     product: Product,
     producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
@@ -91,7 +91,7 @@ async def create_product(
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 
-    return {"Product" : "Created"}
+    return serialized_product
 
 
 # @app.get('/products/', response_model=List[Product])
@@ -112,7 +112,7 @@ async def create_product(
 #         raise HTTPException(status_code=404, detail="Product not found")
     
 
-@app.put('/products/', response_model=Product)
+@app.put('/products/')
 async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
     product_proto = product_pb2.Product()
     product_proto.id = product.id
@@ -125,7 +125,7 @@ async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProdu
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 
-    return {"Product" : "Updated"}
+    return serialized_product
     
 
 @app.delete('/products/')
@@ -137,4 +137,4 @@ async def delete_product(id: int, producer: Annotated[AIOKafkaProducer, Depends(
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 
-    return {"Product" : "Deleted"}
+    return serialized_product
