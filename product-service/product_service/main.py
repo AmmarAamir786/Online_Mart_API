@@ -91,7 +91,7 @@ async def create_product(
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 
-    return serialized_product
+    return {"Product" : "Created"}
 
 
 # @app.get('/products/', response_model=List[Product])
