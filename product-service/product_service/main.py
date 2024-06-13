@@ -43,17 +43,9 @@ async def create_topic():
     raise Exception("Failed to connect to kafka broker after several retries")
 
 
-async def kafka_producer() -> AsyncGenerator[AIOKafkaProducer, None]:
+async def kafka_producer():
     producer = AIOKafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER)
-    retries = 0
-    while retries < MAX_RETRIES:
-        try:
-            await producer.start()
-            break
-        except KafkaConnectionError as e:
-            retries += 1
-            print(f"Kafka connection failed. Retrying {retries}/{MAX_RETRIES}... Error: {e}")
-            await asyncio.sleep(RETRY_INTERVAL)
+    await producer.start()
     try:
         yield producer
     finally:
