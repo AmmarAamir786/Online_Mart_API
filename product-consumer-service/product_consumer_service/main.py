@@ -26,9 +26,9 @@ class Product (SQLModel, table=True):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    logger.info('Creating Tables')
-    create_tables()
-    logger.info("Tables Created")
+    # logger.info('Creating Tables')
+    # create_tables()
+    # logger.info("Tables Created")
 
     loop = asyncio.get_event_loop()
     task = loop.create_task(consume_products())
