@@ -5,11 +5,11 @@ from product_consumer_service import setting
     # Engine is used to establish the connection between our app and our db (neon)
     # Engine is one for whole application
     # Psycopg translates Python code and data structures into commands and data formats that PostgreSQL understands, enabling seamless interaction between your application and the database.
-# connection_string: str = str(setting.DATABASE_URL).replace("postgresql", "postgresql+psycopg")
-# engine = create_engine(connection_string, connect_args={"sslmode":"require"}, pool_recycle=300, pool_size=10, echo=True) 
+connection_string: str = str(setting.DATABASE_URL).replace("postgresql", "postgresql+psycopg")
+engine = create_engine(connection_string, pool_recycle=300, pool_size=10, echo=True) 
     #sslmode will make the connection secure. Echo shows all the steps performed in the terminal
 
-engine = create_engine(setting.DATABASE_URL)
+# engine = create_engine(setting.DATABASE_URL)
 
 #Create tables
 def create_tables():
