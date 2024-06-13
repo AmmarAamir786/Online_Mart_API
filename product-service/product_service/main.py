@@ -71,7 +71,7 @@ app = FastAPI(lifespan=lifespan, title="Product Service", version='1.0.0')
 
 @app.get('/')
 async def root() -> Any:
-    return {"message": "Welcome to products section"}
+    return {"message": "Welcome to products section test"}
 
 
 @app.post('/products/')
