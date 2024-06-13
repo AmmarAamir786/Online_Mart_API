@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 import logging
+from typing import Optional
 
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI
