@@ -1,7 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
 import logging
-from typing import Optional
 
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI
@@ -13,10 +12,16 @@ from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GR
 from product_consumer_service.db import create_tables, engine, get_session
 from aiokafka.errors import KafkaConnectionError
 
+logging.basicConfig(level= logging.INFO)
+logger = logging.getLogger(__name__)
 
-class Product(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+
+class Product (SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
     name: str
+    description: str
+    price: float
+    quantity: int
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,10 +36,6 @@ async def lifespan(app: FastAPI):
 
     task.cancel()
     await task
-
-
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 MAX_RETRIES = 5
