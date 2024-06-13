@@ -5,7 +5,7 @@ from sqlmodel import SQLModel
 
 class Product (SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
-    name: str = Field()
-    description: str = Field()
-    price: float = Field()
-    quantity: int = Field()
+    name: str
+    description: str
+    price: float
+    quantity: int
