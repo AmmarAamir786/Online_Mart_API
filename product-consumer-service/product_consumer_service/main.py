@@ -13,12 +13,9 @@ from product_consumer_service.db import create_tables, engine, get_session
 from aiokafka.errors import KafkaConnectionError
 
 
-class Product (SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+class Product(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    description: str
-    price: float
-    quantity: int
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
