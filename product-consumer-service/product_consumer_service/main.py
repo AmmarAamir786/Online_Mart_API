@@ -58,46 +58,46 @@ async def consume_products():
             try:
                 async for msg in consumer:
                     try:
-                        product = product_pb2.Product()
-                        product.ParseFromString(msg.value)
-                        logger.info(f"Received Message: {product}")
+                        pproduct = product_pb2.Product()
+                        pproduct.ParseFromString(msg.value)
+                        logger.info(f"Received Message: {pproduct}")
 
                         with Session(engine) as session:
-                            if product.operation == product_pb2.OperationType.CREATE:
+                            if pproduct.operation == product_pb2.OperationType.CREATE:
                                 new_product = Product(
-                                    id=product.id,
-                                    name=product.name,
-                                    description=product.description,
-                                    price=product.price,
-                                    quantity=product.quantity
+                                    id=pproduct.id,
+                                    name=pproduct.name,
+                                    description=pproduct.description,
+                                    price=pproduct.price,
+                                    quantity=pproduct.quantity
                                 )
                                 session.add(new_product)
                                 session.commit()
                                 session.refresh(new_product)
                                 logger.info(f'Product added to db: {new_product}')
                             
-                            elif product.operation == product_pb2.OperationType.UPDATE:
-                                existing_product = session.exec(select(Product).where(Product.id == product.id)).first()
+                            elif pproduct.operation == product_pb2.OperationType.UPDATE:
+                                existing_product = session.exec(select(Product).where(Product.id == pproduct.id)).first()
                                 if existing_product:
-                                    existing_product.name = product.name
-                                    existing_product.description = product.description
-                                    existing_product.price = product.price
-                                    existing_product.quantity = product.quantity
+                                    existing_product.name = pproduct.name
+                                    existing_product.description = pproduct.description
+                                    existing_product.price = pproduct.price
+                                    existing_product.quantity = pproduct.quantity
                                     session.add(existing_product)
                                     session.commit()
                                     session.refresh(existing_product)
                                     logger.info(f'Product updated in db: {existing_product}')
                                 else:
-                                    logger.warning(f"Product with ID {product.id} not found")
+                                    logger.warning(f"Product with ID {pproduct.id} not found")
 
-                            elif product.operation == product_pb2.OperationType.DELETE:
-                                existing_product = session.exec(select(Product).where(Product.id == product.id)).first()
+                            elif pproduct.operation == product_pb2.OperationType.DELETE:
+                                existing_product = session.exec(select(Product).where(Product.id == pproduct.id)).first()
                                 if existing_product:
                                     session.delete(existing_product)
                                     session.commit()
-                                    logger.info(f"Product with ID {product.id} successfully deleted")
+                                    logger.info(f"Product with ID {pproduct.id} successfully deleted")
                                 else:
-                                    logger.warning(f"Product with ID {product.id} not found for deletion")
+                                    logger.warning(f"Product with ID {pproduct.id} not found for deletion")
 
                     except Exception as e:
                         logger.error(f"Error processing message: {e}")
