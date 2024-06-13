@@ -64,13 +64,13 @@ async def consume_products():
 
                         with Session(engine) as session:
                             if product.operation == product_pb2.OperationType.CREATE:
-                                new_product = Product(
-                                    id=product.id,
-                                    name=product.name,
-                                    description=product.description,
-                                    price=product.price,
-                                    quantity=product.quantity
-                                )
+                                new_product = Product()
+                                new_product.id=product.id,
+                                new_product.name=product.name,
+                                new_product.description=product.description,
+                                new_product.price=product.price,
+                                new_product.quantity=product.quantity
+                                # )
                                 session.add(new_product)
                                 session.commit()
                                 session.refresh(new_product)
