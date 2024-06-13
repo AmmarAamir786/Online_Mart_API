@@ -4,7 +4,7 @@ import logging
 
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI
-from product_consumer_service.models import Product
+# from product_consumer_service.models import Product
 from pydantic import BaseModel, Field
 from sqlmodel import SQLModel, Session, select
 from product_consumer_service import product_pb2
