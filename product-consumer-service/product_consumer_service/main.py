@@ -4,12 +4,20 @@ import logging
 
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI
-from product_consumer_service.models import Product
-from sqlmodel import Session, select
+# from product_consumer_service.models import Product
+from pydantic import Field
+from sqlmodel import SQLModel, Session, select
 from product_consumer_service import product_pb2
 from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_PRODUCT_TOPIC
 from product_consumer_service.db import create_tables, engine, get_session
 
+
+class Product (SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    description: str
+    price: float
+    quantity: int
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
