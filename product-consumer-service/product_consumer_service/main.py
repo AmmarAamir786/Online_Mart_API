@@ -13,7 +13,7 @@ from product_consumer_service.db import create_tables, engine, get_session
 from aiokafka.errors import KafkaConnectionError
 
 
-class Product (SQLModel, table = True):
+class Product (SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     name: str
     description: str
@@ -23,9 +23,9 @@ class Product (SQLModel, table = True):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    print('Creating Tables')
+    logger.info('Creating Tables')
     create_tables()
-    print("Tables Created")
+    logger.info("Tables Created")
 
     loop = asyncio.get_event_loop()
     task = loop.create_task(consume_products())
