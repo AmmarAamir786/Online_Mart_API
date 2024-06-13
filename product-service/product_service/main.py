@@ -3,7 +3,9 @@ from contextlib import asynccontextmanager
 import json
 from typing import Annotated, Any, AsyncGenerator
 from fastapi import Depends, FastAPI
+
 from product_service import product_pb2
+
 from product_service.models import Product, ProductUpdate
 from product_service.setting import BOOTSTRAP_SERVER, KAFKA_PRODUCT_TOPIC
 from aiokafka import AIOKafkaProducer
@@ -61,9 +63,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(lifespan=lifespan, title="Product Service", version='1.0.0')
 
 
-@app.get('/')
-async def root() -> Any:
-    return {"message": "Welcome to products section test"}
+# @app.get('/')
+# async def root() -> Any:
+#     return {"message": "Welcome to products section test"}
 
 
 @app.post('/products/')
