@@ -9,7 +9,6 @@ from sqlmodel import Session, select
 from product_consumer_service import product_pb2
 from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_PRODUCT_TOPIC
 from product_consumer_service.db import create_tables, engine, get_session
-from aiokafka.errors import KafkaConnectionError
 
 
 logging.basicConfig(level= logging.INFO)

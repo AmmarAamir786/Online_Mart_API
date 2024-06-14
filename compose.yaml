@@ -74,18 +74,6 @@ services:
     depends_on:
       - broker
 
-  # product_consumer_db:
-  #   image: postgres:latest  # Use the official PostgreSQL image
-  #   restart: always
-  #   container_name: product_Consumer_db_Cont
-  #   environment:
-  #       - POSTGRES_USER=ammar
-  #       - POSTGRES_PASSWORD=my_password
-  #       - POSTGRES_DB=product_consumer_db
-  #   ports:
-  #       - '5434:5432'
-  #   volumes:
-  #       - product_consumer_db:/var/lib/postgresql/data
 
   # user-service:
   #   build:
@@ -116,8 +104,6 @@ volumes:
   product_db:
     driver: local
   # user_db:
-  #   driver: local
-  # product_consumer_db:
   #   driver: local
 
 networks:
