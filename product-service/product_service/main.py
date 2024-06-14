@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 import json
 import logging
 from typing import Annotated, Any, AsyncGenerator
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 
 from product_service import product_pb2
 
@@ -12,6 +12,7 @@ from product_service.setting import BOOTSTRAP_SERVER, KAFKA_PRODUCT_TOPIC
 from aiokafka import AIOKafkaProducer
 from aiokafka.errors import KafkaConnectionError
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
+from pydantic import ValidationError
 
 
 MAX_RETRIES = 5
@@ -113,18 +114,25 @@ async def create_product(
 
 @app.put('/products/')
 async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
-    product_proto = product_pb2.Product()
-    product_proto.id = product.id
-    product_proto.name = product.name
-    product_proto.price = product.price
-    product_proto.quantity = product.quantity
-    product_proto.description = product.description
-    product_proto.operation = product_pb2.OperationType.UPDATE
-    
-    serialized_product = product_proto.SerializeToString()
-    await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
+    try:
 
-    return {"Product" : "Updated"}
+        logger.info(f"Received product data for update: {product}")
+
+        product_proto = product_pb2.Product()
+        product_proto.id = product.id
+        product_proto.name = product.name
+        product_proto.price = product.price
+        product_proto.quantity = product.quantity
+        product_proto.description = product.description
+        product_proto.operation = product_pb2.OperationType.UPDATE
+        
+        serialized_product = product_proto.SerializeToString()
+        await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
+
+        return {"Product": "Updated"}
+    except ValidationError as e:
+        logger.error(f"Validation error: {e}")
+        raise HTTPException(status_code=422, detail=e.errors())
     
 
 @app.delete('/products/')
