@@ -1,11 +1,10 @@
-# from typing import Optional
-# from pydantic import Field
-# from sqlmodel import SQLModel
+from typing import Optional
+from sqlmodel import SQLModel, Field
 
 
-# class Product (SQLModel, table=True):
-#     id: int = Field(default=None, primary_key=True)
-#     name: str
-#     description: str
-#     price: float
-#     quantity: int
+class Product (SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    description: str
+    price: float
+    quantity: int
