@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 import json
+import logging
 from typing import Annotated, Any, AsyncGenerator
 from fastapi import Depends, FastAPI
 
@@ -67,6 +68,9 @@ app = FastAPI(lifespan=lifespan, title="Product Service", version='1.0.0')
 # async def root() -> Any:
 #     return {"message": "Welcome to products section test"}
 
+logging.basicConfig(level= logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 @app.post('/products/')
 async def create_product(
@@ -81,7 +85,9 @@ async def create_product(
     product_proto.quantity = product.quantity
     product_proto.description = product.description
     product_proto.operation = product_pb2.OperationType.CREATE
-    
+
+    logger.info(f"Received Message: {product_proto}")
+
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 

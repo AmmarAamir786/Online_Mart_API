@@ -12,6 +12,7 @@ from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GR
 from product_consumer_service.db import create_tables, engine, get_session
 from aiokafka.errors import KafkaConnectionError
 
+
 logging.basicConfig(level= logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -23,12 +24,13 @@ class Product (SQLModel, table=True):
     price: float
     quantity: int
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    # logger.info('Creating Tables')
-    # create_tables()
-    # logger.info("Tables Created")
+    logger.info('Creating Tables')
+    create_tables()
+    logger.info("Tables Created")
 
     loop = asyncio.get_event_loop()
     task = loop.create_task(consume_products())
