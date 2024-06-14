@@ -5,8 +5,7 @@ import logging
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI
 from product_consumer_service.models import Product
-from pydantic import BaseModel, Field
-from sqlmodel import SQLModel, Session, select
+from sqlmodel import Session, select
 from product_consumer_service import product_pb2
 from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_PRODUCT_TOPIC
 from product_consumer_service.db import create_tables, engine, get_session
@@ -15,14 +14,6 @@ from aiokafka.errors import KafkaConnectionError
 
 logging.basicConfig(level= logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-# class Product (SQLModel, table=True):
-#     id: int = Field(default=None, primary_key=True)
-#     name: str
-#     description: str
-#     price: float
-#     quantity: int
 
 
 @asynccontextmanager
@@ -67,7 +58,6 @@ async def consume_products():
                         with Session(engine) as session:
                             if product.operation == product_pb2.OperationType.CREATE:
                                 new_product = Product(
-                                    id=product.id,
                                     name=product.name,
                                     description=product.description,
                                     price=product.price,

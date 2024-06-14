@@ -78,7 +78,6 @@ async def create_product(
     producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
 ):
     
-    # serialized_product = json.dumps(product.__dict__).encode('utf-8')
     product_proto = product_pb2.Product()
     product_proto.name = product.name
     product_proto.price = product.price
