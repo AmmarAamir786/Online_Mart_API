@@ -17,12 +17,12 @@ logging.basicConfig(level= logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class Pproduct (SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
-    name: str
-    description: str
-    price: float
-    quantity: int
+# class Pproduct (SQLModel, table=True):
+#     id: int = Field(default=None, primary_key=True)
+#     name: str
+#     description: str
+#     price: float
+#     quantity: int
 
 
 @asynccontextmanager
