@@ -1,9 +1,8 @@
 import asyncio
 from contextlib import asynccontextmanager
-import json
 import logging
-from typing import Annotated, Any, AsyncGenerator
-from fastapi import Depends, FastAPI, HTTPException
+from typing import Annotated, AsyncGenerator
+from fastapi import Depends, FastAPI
 
 from product_service import product_pb2
 
@@ -12,7 +11,6 @@ from product_service.setting import BOOTSTRAP_SERVER, KAFKA_PRODUCT_TOPIC
 from aiokafka import AIOKafkaProducer
 from aiokafka.errors import KafkaConnectionError
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
-from pydantic import ValidationError
 
 
 MAX_RETRIES = 5
@@ -69,8 +67,9 @@ app = FastAPI(lifespan=lifespan, title="Product Service", version='1.0.0')
 # async def root() -> Any:
 #     return {"message": "Welcome to products section test"}
 
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
+
+# logging.basicConfig(level= logging.INFO)
+# logger = logging.getLogger(__name__)
 
 
 @app.post('/products/')
@@ -86,7 +85,7 @@ async def create_product(
     product_proto.description = product.description
     product_proto.operation = product_pb2.OperationType.CREATE
 
-    logger.info(f"Received Message: {product_proto}")
+    # logger.info(f"Received Message: {product_proto}")
 
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
@@ -94,45 +93,23 @@ async def create_product(
     return {"Product" : "Created"}
 
 
-# @app.get('/products/', response_model=List[Product])
-# async def get_all_products(session: Session = Depends(get_session)) -> List[Product]:
-#     products = list(session.exec(select(Product)).all())
-#     if products:
-#         return products
-#     else:
-#         raise HTTPException(status_code=404, detail="No products found")
-
-
-# @app.get('/products/{id}', response_model=Product)
-# async def get_single_product(id: int, session: Session = Depends(get_session)) -> Product:
-#     product = session.get(Product, id)
-#     if product:
-#         return product
-#     else:
-#         raise HTTPException(status_code=404, detail="Product not found")
-    
-
 @app.put('/products/')
 async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
-    try:
 
-        logger.info(f"Received product data for update: {product}")
+    # logger.info(f"Received product data for update: {product}")
 
-        product_proto = product_pb2.Product()
-        product_proto.id = product.id
-        product_proto.name = product.name
-        product_proto.price = product.price
-        product_proto.quantity = product.quantity
-        product_proto.description = product.description
-        product_proto.operation = product_pb2.OperationType.UPDATE
+    product_proto = product_pb2.Product()
+    product_proto.id = product.id
+    product_proto.name = product.name
+    product_proto.price = product.price
+    product_proto.quantity = product.quantity
+    product_proto.description = product.description
+    product_proto.operation = product_pb2.OperationType.UPDATE
         
-        serialized_product = product_proto.SerializeToString()
-        await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
+    serialized_product = product_proto.SerializeToString()
+    await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
 
-        return {"Product": "Updated"}
-    except ValidationError as e:
-        logger.error(f"Validation error: {e}")
-        raise HTTPException(status_code=422, detail=e.errors())
+    return {"Product": "Updated"}
     
 
 @app.delete('/products/')
