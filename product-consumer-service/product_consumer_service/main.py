@@ -4,7 +4,7 @@ import logging
 
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI
-# from product_consumer_service.models import Product
+from product_consumer_service.models import Product
 from pydantic import BaseModel, Field
 from sqlmodel import SQLModel, Session, select
 from product_consumer_service import product_pb2
@@ -17,12 +17,12 @@ logging.basicConfig(level= logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class Product (SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
-    name: str
-    description: str
-    price: float
-    quantity: int
+# class Product (SQLModel, table=True):
+#     id: int = Field(default=None, primary_key=True)
+#     name: str
+#     description: str
+#     price: float
+#     quantity: int
 
 
 @asynccontextmanager
