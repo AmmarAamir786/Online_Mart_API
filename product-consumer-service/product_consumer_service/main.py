@@ -35,15 +35,31 @@ MAX_RETRIES = 5
 RETRY_INTERVAL = 10
 
 async def consume_products():
+    retries = 0
+    
+    while retries < MAX_RETRIES:
+        try:
+            consumer = AIOKafkaConsumer(
+                KAFKA_PRODUCT_TOPIC,
+                bootstrap_servers=BOOTSTRAP_SERVER,
+                group_id=KAFKA_CONSUMER_GROUP_ID,
+                auto_offset_reset='earliest',  # Start from the earliest message if no offset is committed
+                enable_auto_commit=True,       # Enable automatic offset committing
+                auto_commit_interval_ms=5000   # Interval for automatic offset commits
+            )
 
-    consumer = AIOKafkaConsumer(
-        KAFKA_PRODUCT_TOPIC,
-        bootstrap_servers=BOOTSTRAP_SERVER,
-        group_id=KAFKA_CONSUMER_GROUP_ID
-    )
+            await consumer.start()
+            logger.info("Consumer started successfully.")
+            break
+        except Exception as e:
+            retries += 1
+            logger.error(f"Error starting consumer, retry {retries}/{MAX_RETRIES}: {e}")
+            if retries < MAX_RETRIES:
+                await asyncio.sleep(RETRY_INTERVAL)
+            else:
+                logger.error("Max retries reached. Could not start consumer.")
+                return
 
-    await consumer.start()
-    logger.info("CONSUMER STARTED LETSS GOOOOOOOO....")
     try:
         async for msg in consumer:
             try:
