@@ -1,9 +1,10 @@
 import asyncio
 from contextlib import asynccontextmanager
 import logging
+from typing import List
 
 from aiokafka import AIOKafkaConsumer
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from product_consumer_service.models import Product
 from sqlmodel import Session, select
 from product_consumer_service import product_pb2
@@ -36,7 +37,7 @@ RETRY_INTERVAL = 10
 
 async def consume_products():
     retries = 0
-    
+
     while retries < MAX_RETRIES:
         try:
             consumer = AIOKafkaConsumer(
@@ -114,3 +115,19 @@ async def consume_products():
 
 
 app = FastAPI(lifespan=lifespan, title="Product Consumer Service", version='1.0.0')
+
+
+@app.get("/products/", response_model=List[Product])
+async def get_products():
+    with Session(engine) as session:
+        products = session.exec(select(Product)).all()
+        return products
+
+
+@app.get("/products/{product_id}", response_model=Product)
+async def get_product(product_id: int):
+    with Session(engine) as session:
+        product = session.exec(select(Product).where(Product.id == product_id)).first()
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        return product
