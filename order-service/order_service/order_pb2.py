@@ -24,19 +24,15 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0border.proto\"\xca\x01\n\x05Order\x12\x0f\n\x02id\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x39\n\x12product_quantities\x18\x02 \x03(\x0b\x32\x1d.Order.ProductQuantitiesEntry\x12&\n\toperation\x18\x03 \x01(\x0e\x32\x0e.OperationTypeH\x01\x88\x01\x01\x1a\x38\n\x16ProductQuantitiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\x42\x05\n\x03_idB\x0c\n\n_operation*3\n\rOperationType\x12\n\n\x06\x43REATE\x10\x00\x12\n\n\x06UPDATE\x10\x01\x12\n\n\x06\x44\x45LETE\x10\x02\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0border.proto\"\xa1\x01\n\x05Order\x12\x0f\n\x02id\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x17\n\nproduct_id\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12\x15\n\x08quantity\x18\x03 \x01(\x05H\x02\x88\x01\x01\x12&\n\toperation\x18\x04 \x01(\x0e\x32\x0e.OperationTypeH\x03\x88\x01\x01\x42\x05\n\x03_idB\r\n\x0b_product_idB\x0b\n\t_quantityB\x0c\n\n_operation*3\n\rOperationType\x12\n\n\x06\x43REATE\x10\x00\x12\n\n\x06UPDATE\x10\x01\x12\n\n\x06\x44\x45LETE\x10\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'order_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ORDER_PRODUCTQUANTITIESENTRY']._loaded_options = None
-  _globals['_ORDER_PRODUCTQUANTITIESENTRY']._serialized_options = b'8\001'
-  _globals['_OPERATIONTYPE']._serialized_start=220
-  _globals['_OPERATIONTYPE']._serialized_end=271
+  _globals['_OPERATIONTYPE']._serialized_start=179
+  _globals['_OPERATIONTYPE']._serialized_end=230
   _globals['_ORDER']._serialized_start=16
-  _globals['_ORDER']._serialized_end=218
-  _globals['_ORDER_PRODUCTQUANTITIESENTRY']._serialized_start=141
-  _globals['_ORDER_PRODUCTQUANTITIESENTRY']._serialized_end=197
+  _globals['_ORDER']._serialized_end=177
 # @@protoc_insertion_point(module_scope)

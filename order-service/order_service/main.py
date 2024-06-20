@@ -79,9 +79,8 @@ async def create_order(
 ):
     
     order_proto = order_pb2.Order()
-
-    for product_id, quantity in order.product_quantities.items():
-        order_proto.product_quantities[product_id] = quantity
+    order_proto.product_id = order.product_id
+    order_proto.quantity = order.quantity
 
     order_proto.operation = order_pb2.OperationType.CREATE
 
@@ -98,9 +97,8 @@ async def edit_order(order: OrderUpdate, producer: Annotated[AIOKafkaProducer, D
 
     order_proto = order_pb2.Order()
     order_proto.id = order.id
-
-    for product_id, quantity in order.product_quantities.items():
-        order_proto.product_quantities[product_id] = quantity
+    order_proto.product_id = order.product_id
+    order_proto.quantity = order.quantity
 
     order_proto.operation = order_pb2.OperationType.UPDATE
 

@@ -8,6 +8,7 @@ enum OperationType {
 
 message Order {
   optional int32 id = 1;
-  map<int32, int32> product_quantities = 2;  // Key: Product ID, Value: Quantity
-  optional OperationType operation = 3;
+  optional int32 product_id = 2;
+  optional int32 quantity = 3;
+  optional OperationType operation = 4;
 }

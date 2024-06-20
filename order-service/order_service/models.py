@@ -2,7 +2,8 @@ from pydantic import BaseModel
 from typing import Dict
 
 class Order(BaseModel):
-    product_quantities: Dict[int, int]  # Key: Product ID, Value: Quantity
+    product_id: int
+    quantity: int
 
 class OrderUpdate(Order):
     id: int

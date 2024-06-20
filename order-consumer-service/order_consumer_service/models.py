@@ -3,4 +3,5 @@ from sqlmodel import SQLModel, Field, Column, JSON
 
 class Order(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    product_quantities: Dict[int, int] = Field(sa_column=Column(JSON))
+    product_id: int
+    quantity: int

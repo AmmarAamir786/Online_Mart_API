@@ -67,7 +67,8 @@ async def consume_orders():
                 with Session(engine) as session:
                     if order.operation == order_pb2.OperationType.CREATE:
                         new_order = Order(
-                            product_quantities=order.product_quantities
+                            product_id=order.product_id,
+                            quantity=order.quantity
                         )
                         session.add(new_order)
                         session.commit()
@@ -77,7 +78,8 @@ async def consume_orders():
                     elif order.operation == order_pb2.OperationType.UPDATE:
                         existing_order = session.exec(select(Order).where(Order.id == order.id)).first()
                         if existing_order:
-                            existing_order.product_quantities = order.product_quantities
+                            existing_order.product_id = order.product_id
+                            existing_order.quantity = order.quantity
                             session.add(existing_order)
                             session.commit()
                             session.refresh(existing_order)
