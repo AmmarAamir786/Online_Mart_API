@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "order-service"
+version = "0.1.0"
+description = ""
+authors = ["Ammar Aamir <ammaraamir609@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.1"
+uvicorn = "^0.29.0"
+sqlmodel = "^0.0.16"
+aiokafka = "^0.10.0"
+protobuf = "^5.27.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
