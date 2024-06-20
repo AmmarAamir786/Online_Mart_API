@@ -6,7 +6,7 @@ from typing import List
 from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI, HTTPException
 from sqlmodel import Session, select
-from order_consumer_service.models import Order
+from order_consumer_service.models import OrderItem
 from order_consumer_service import order_pb2
 from order_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_ORDER_TOPIC
 from order_consumer_service.db import create_tables, engine, get_session
@@ -66,7 +66,7 @@ async def consume_orders():
 
                 with Session(engine) as session:
                     if order.operation == order_pb2.OperationType.CREATE:
-                        new_order = Order(
+                        new_order = OrderItem(
                             product_id=order.product_id,
                             quantity=order.quantity
                         )
@@ -76,7 +76,7 @@ async def consume_orders():
                         logger.info(f'Order added to db: {new_order}')
                     
                     elif order.operation == order_pb2.OperationType.UPDATE:
-                        existing_order = session.exec(select(Order).where(Order.id == order.id)).first()
+                        existing_order = session.exec(select(OrderItem).where(OrderItem.id == order.id)).first()
                         if existing_order:
                             existing_order.product_id = order.product_id
                             existing_order.quantity = order.quantity
@@ -88,7 +88,7 @@ async def consume_orders():
                             logger.warning(f"Order with ID {order.id} not found")
 
                     elif order.operation == order_pb2.OperationType.DELETE:
-                        existing_order = session.exec(select(Order).where(Order.id == order.id)).first()
+                        existing_order = session.exec(select(OrderItem).where(OrderItem.id == order.id)).first()
                         if existing_order:
                             session.delete(existing_order)
                             session.commit()
@@ -106,16 +106,16 @@ async def consume_orders():
 
 app = FastAPI(lifespan=lifespan, title="Order Consumer Service", version='1.0.0')
 
-@app.get("/orders/", response_model=List[Order])
+@app.get("/orders/", response_model=List[OrderItem])
 async def get_orders():
     with Session(engine) as session:
-        orders = session.exec(select(Order)).all()
+        orders = session.exec(select(OrderItem)).all()
         return orders
 
-@app.get("/orders/{order_id}", response_model=Order)
+@app.get("/orders/{order_id}", response_model=OrderItem)
 async def get_order(order_id: int):
     with Session(engine) as session:
-        order = session.exec(select(Order).where(Order.id == order_id)).first()
+        order = session.exec(select(OrderItem).where(OrderItem.id == order_id)).first()
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
         return order
