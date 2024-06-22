@@ -6,5 +6,3 @@ class OrderItem(SQLModel, table=True):
     product_id: int
     quantity: int
 
-
-#uoqifhqiofhqioh
