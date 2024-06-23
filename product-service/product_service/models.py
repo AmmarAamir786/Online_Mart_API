@@ -5,7 +5,7 @@ class Product (BaseModel):
     name: str
     description: str
     price: float
-    quantity: int
+    category: str
 
 
 class ProductUpdate(Product):
