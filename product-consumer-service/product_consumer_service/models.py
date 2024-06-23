@@ -7,4 +7,4 @@ class Product (SQLModel, table=True):
     name: str
     description: str
     price: float
-    category: strftime(format)
+    category: str
