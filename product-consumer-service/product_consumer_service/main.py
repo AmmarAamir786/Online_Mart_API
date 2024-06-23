@@ -74,7 +74,7 @@ async def consume_products():
                             name=product.name,
                             description=product.description,
                             price=product.price,
-                            quantity=product.quantity
+                            category=product.category
                         )
                         session.add(new_product)
                         session.commit()
@@ -87,7 +87,7 @@ async def consume_products():
                             existing_product.name = product.name
                             existing_product.description = product.description
                             existing_product.price = product.price
-                            existing_product.quantity = product.quantity
+                            existing_product.category = product.category
                             session.add(existing_product)
                             session.commit()
                             session.refresh(existing_product)
