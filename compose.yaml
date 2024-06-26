@@ -79,6 +79,44 @@ services:
         - order_db:/var/lib/postgresql/data
 
 
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./inventory-service:/app  # Sync local development directory with the container
+    depends_on:
+      - kafka-ui
+      - broker
+    ports:
+      - "8004:8000"  # Expose container port 8000 to host port 8000 
+
+  inventory-consumer-service:
+    build:
+      context: ./inventory-consumer-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./inventory-consumer-service:/app  # Sync local development directory with the container
+    depends_on:
+      - inventory_db
+      - broker
+    ports:
+      - "8005:8000"  # Expose container port 8000 to host port 8000 
+
+  inventory_db:
+    image: postgres:latest  # Use the official PostgreSQL image
+    restart: always
+    container_name: Inventory_db_Cont
+    environment:
+        - POSTGRES_USER=ammar
+        - POSTGRES_PASSWORD=my_password
+        - POSTGRES_DB=inventory_db
+    ports:
+        - '5435:5432'
+    volumes:
+        - inventory_db:/var/lib/postgresql/data
+
+
   broker:
     image: apache/kafka:3.7.0
     hostname: broker
@@ -118,6 +156,8 @@ volumes:
   product_db:
     driver: local
   order_db:
+    driver: local
+  inventory_db:
     driver: local
 
 networks:
