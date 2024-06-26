@@ -110,7 +110,7 @@ async def edit_inventory(inventory: InventoryUpdate, producer: Annotated[AIOKafk
 
 @app.delete('/inventory/')
 async def delete_inventory(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
-    inventory_proto = inventory_pb2.inventory()
+    inventory_proto = inventory_pb2.Inventory()
     inventory_proto.id = id
     inventory_proto.operation = inventory_pb2.OperationType.DELETE
 
