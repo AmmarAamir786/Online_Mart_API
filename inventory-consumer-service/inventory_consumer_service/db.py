@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, create_engine, Session
-from product_consumer_service import setting
+from inventory_consumer_service import setting
 
 #Create Engine
     # Engine is used to establish the connection between our app and our db (neon)
