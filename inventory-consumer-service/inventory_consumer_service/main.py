@@ -116,8 +116,8 @@ app = FastAPI(lifespan=lifespan, title="Inventory Consumer Service", version='1.
 @app.get("/inventory/", response_model=List[Inventory])
 async def get_inventory():
     with Session(engine) as session:
-        products = session.exec(select(Inventory)).all()
-        return products
+        inventory = session.exec(select(Inventory)).all()
+        return inventory
 
 
 @app.get("/inventory/{inventory_id}", response_model=Inventory)
@@ -125,5 +125,5 @@ async def get_product(inventory_id: int):
     with Session(engine) as session:
         inventory = session.exec(select(Inventory).where(Inventory.id == inventory_id)).first()
         if not inventory:
-            raise HTTPException(status_code=404, detail="Product not found")
+            raise HTTPException(status_code=404, detail="Inventory not found")
         return inventory
