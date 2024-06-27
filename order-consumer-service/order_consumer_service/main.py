@@ -65,7 +65,7 @@ async def consume_orders():
                 logger.info(f"Received Message: {order}")
 
                 with Session(engine) as session:
-                    if order.operation == order_pb2.OperationType.CREATE:
+                    if order.operation == order_pb2.OrderOperationType.CREATE:
                         new_order = OrderItem(
                             product_id=order.product_id,
                             quantity=order.quantity
@@ -75,7 +75,7 @@ async def consume_orders():
                         session.refresh(new_order)
                         logger.info(f'Order added to db: {new_order}')
                     
-                    # elif order.operation == order_pb2.OperationType.UPDATE:
+                    # elif order.operation == order_pb2.OrderOperationType.UPDATE:
                     #     existing_order = session.exec(select(OrderItem).where(OrderItem.id == order.id)).first()
                     #     if existing_order:
                     #         existing_order.product_id = order.product_id
@@ -87,7 +87,7 @@ async def consume_orders():
                     #     else:
                     #         logger.warning(f"Order with ID {order.id} not found")
 
-                    elif order.operation == order_pb2.OperationType.DELETE:
+                    elif order.operation == order_pb2.OrderOperationType.DELETE:
                         existing_order = session.exec(select(OrderItem).where(OrderItem.id == order.id)).first()
                         if existing_order:
                             session.delete(existing_order)

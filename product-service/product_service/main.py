@@ -83,7 +83,7 @@ async def create_product(
     product_proto.price = product.price
     product_proto.category = product.category
     product_proto.description = product.description
-    product_proto.operation = product_pb2.OperationType.CREATE
+    product_proto.operation = product_pb2.ProductOperationType.CREATE
 
     # logger.info(f"Received Message: {product_proto}")
 
@@ -104,7 +104,7 @@ async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProdu
     product_proto.price = product.price
     product_proto.category = product.category
     product_proto.description = product.description
-    product_proto.operation = product_pb2.OperationType.UPDATE
+    product_proto.operation = product_pb2.ProductOperationType.UPDATE
         
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
@@ -116,7 +116,7 @@ async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProdu
 async def delete_product(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
     product_proto = product_pb2.Product()
     product_proto.id = id
-    product_proto.operation = product_pb2.OperationType.DELETE
+    product_proto.operation = product_pb2.ProductOperationType.DELETE
 
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)

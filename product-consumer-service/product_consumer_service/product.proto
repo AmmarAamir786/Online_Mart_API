@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-enum OperationType {
+enum ProductOperationType {
   CREATE = 0;
   UPDATE = 1;
   DELETE = 2;
@@ -12,5 +12,5 @@ message Product {
   optional float price = 3;
   optional string category = 4;
   optional string description = 5;
-  optional OperationType operation = 6;
+  optional ProductOperationType operation = 6;
 }

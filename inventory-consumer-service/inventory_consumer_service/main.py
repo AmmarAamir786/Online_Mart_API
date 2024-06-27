@@ -73,7 +73,7 @@ async def consume_inventory():
                 logger.info(f"Received Inventory Message: {inventory}")
 
                 with Session(engine) as session:
-                    if inventory.operation == inventory_pb2.OperationType.CREATE:
+                    if inventory.operation == inventory_pb2.InventoryOperationType.CREATE:
                         new_inventory = Inventory(
                             product_id=inventory.product_id,
                             stock_level=inventory.stock_level
@@ -83,7 +83,7 @@ async def consume_inventory():
                         session.refresh(new_inventory)
                         logger.info(f'Inventory added to db: {new_inventory}')
                     
-                    elif inventory.operation == inventory_pb2.OperationType.UPDATE:
+                    elif inventory.operation == inventory_pb2.InventoryOperationType.UPDATE:
                         existing_inventory = session.exec(select(Inventory).where(Inventory.id == inventory.id)).first()
                         if existing_inventory:
                             existing_inventory.product_id = inventory.product_id
@@ -95,7 +95,7 @@ async def consume_inventory():
                         else:
                             logger.warning(f"Inventory with ID {inventory.id} not found")
 
-                    elif inventory.operation == inventory_pb2.OperationType.DELETE:
+                    elif inventory.operation == inventory_pb2.InventoryOperationType.DELETE:
                         existing_inventory = session.exec(select(Inventory).where(Inventory.id == inventory.id)).first()
                         if existing_inventory:
                             session.delete(existing_inventory)
@@ -129,13 +129,13 @@ async def consume_orders():
                     existing_inventory = session.exec(select(Inventory).where(Inventory.product_id == order.product_id)).first()
                     if existing_inventory:
 
-                        if order.operation == order_pb2.OperationType.CREATE:
+                        if order.operation == order_pb2.OrderOperationType.CREATE:
                             existing_inventory.stock_level -= order.quantity
 
-                        # elif order.operation == order_pb2.OperationType.UPDATE:
+                        # elif order.operation == order_pb2.OrderOperationType.UPDATE:
                         #     existing_inventory.stock_level -= order.quantity
 
-                        elif order.operation == order_pb2.OperationType.DELETE:
+                        elif order.operation == order_pb2.OrderOperationType.DELETE:
                             existing_inventory.stock_level += order.quantity
 
                         session.add(existing_inventory)

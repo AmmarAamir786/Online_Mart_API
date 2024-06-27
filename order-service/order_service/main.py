@@ -82,7 +82,7 @@ async def create_order(
     order_proto.product_id = order.product_id
     order_proto.quantity = order.quantity
 
-    order_proto.operation = order_pb2.OperationType.CREATE
+    order_proto.operation = order_pb2.OrderOperationType.CREATE
 
     logger.info(f"Received Message: {order_proto}")
 
@@ -100,7 +100,7 @@ async def create_order(
 #     order_proto.product_id = order.product_id
 #     order_proto.quantity = order.quantity
 
-#     order_proto.operation = order_pb2.OperationType.UPDATE
+#     order_proto.operation = order_pb2.OrderOperationType.UPDATE
 
 #     logger.info(f"Received order data for update: {order_proto}")
         
@@ -114,7 +114,7 @@ async def create_order(
 async def delete_order(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
     order_proto = order_pb2.Order()
     order_proto.id = id
-    order_proto.operation = order_pb2.OperationType.DELETE
+    order_proto.operation = order_pb2.OrderOperationType.DELETE
 
     serialized_order = order_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)

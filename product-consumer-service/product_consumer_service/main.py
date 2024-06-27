@@ -69,7 +69,7 @@ async def consume_products():
                 logger.info(f"Received Message: {product}")
 
                 with Session(engine) as session:
-                    if product.operation == product_pb2.OperationType.CREATE:
+                    if product.operation == product_pb2.ProductOperationType.CREATE:
                         new_product = Product(
                             name=product.name,
                             description=product.description,
@@ -81,7 +81,7 @@ async def consume_products():
                         session.refresh(new_product)
                         logger.info(f'Product added to db: {new_product}')
                     
-                    elif product.operation == product_pb2.OperationType.UPDATE:
+                    elif product.operation == product_pb2.ProductOperationType.UPDATE:
                         existing_product = session.exec(select(Product).where(Product.id == product.id)).first()
                         if existing_product:
                             existing_product.name = product.name
@@ -95,7 +95,7 @@ async def consume_products():
                         else:
                             logger.warning(f"Product with ID {product.id} not found")
 
-                    elif product.operation == product_pb2.OperationType.DELETE:
+                    elif product.operation == product_pb2.ProductOperationType.DELETE:
                         existing_product = session.exec(select(Product).where(Product.id == product.id)).first()
                         if existing_product:
                             session.delete(existing_product)

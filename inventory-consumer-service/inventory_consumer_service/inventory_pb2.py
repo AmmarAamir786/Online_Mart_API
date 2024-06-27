@@ -24,15 +24,15 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0finventory.proto\"\xab\x01\n\tInventory\x12\x0f\n\x02id\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x17\n\nproduct_id\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12\x18\n\x0bstock_level\x18\x03 \x01(\x05H\x02\x88\x01\x01\x12&\n\toperation\x18\x04 \x01(\x0e\x32\x0e.OperationTypeH\x03\x88\x01\x01\x42\x05\n\x03_idB\r\n\x0b_product_idB\x0e\n\x0c_stock_levelB\x0c\n\n_operation*3\n\rOperationType\x12\n\n\x06\x43REATE\x10\x00\x12\n\n\x06UPDATE\x10\x01\x12\n\n\x06\x44\x45LETE\x10\x02\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0finventory.proto\"\xb4\x01\n\tInventory\x12\x0f\n\x02id\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x17\n\nproduct_id\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12\x18\n\x0bstock_level\x18\x03 \x01(\x05H\x02\x88\x01\x01\x12/\n\toperation\x18\x04 \x01(\x0e\x32\x17.InventoryOperationTypeH\x03\x88\x01\x01\x42\x05\n\x03_idB\r\n\x0b_product_idB\x0e\n\x0c_stock_levelB\x0c\n\n_operation*<\n\x16InventoryOperationType\x12\n\n\x06\x43REATE\x10\x00\x12\n\n\x06UPDATE\x10\x01\x12\n\n\x06\x44\x45LETE\x10\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'inventory_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_OPERATIONTYPE']._serialized_start=193
-  _globals['_OPERATIONTYPE']._serialized_end=244
+  _globals['_INVENTORYOPERATIONTYPE']._serialized_start=202
+  _globals['_INVENTORYOPERATIONTYPE']._serialized_end=262
   _globals['_INVENTORY']._serialized_start=20
-  _globals['_INVENTORY']._serialized_end=191
+  _globals['_INVENTORY']._serialized_end=200
 # @@protoc_insertion_point(module_scope)

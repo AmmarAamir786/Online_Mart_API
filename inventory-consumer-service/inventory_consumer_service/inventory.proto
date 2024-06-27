@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-enum OperationType {
+enum InventoryOperationType {
   CREATE = 0;
   UPDATE = 1;
   DELETE = 2;
@@ -10,5 +10,5 @@ message Inventory {
   optional int32 id = 1;
   optional int32 product_id = 2;
   optional int32 stock_level = 3;
-  optional OperationType operation = 4;
+  optional InventoryOperationType operation = 4;
 }
