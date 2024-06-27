@@ -116,6 +116,7 @@ async def consume_inventory():
 async def consume_orders():
     consumer = await create_consumer(KAFKA_ORDER_TOPIC)
     if not consumer:
+        logger.error("Failed to create Kafka consumer")
         return
 
     try:
