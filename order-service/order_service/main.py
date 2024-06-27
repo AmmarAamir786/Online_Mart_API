@@ -92,22 +92,22 @@ async def create_order(
     return {"Order" : "Created"}
 
 
-@app.put('/orders/')
-async def edit_order(order: OrderUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
+# @app.put('/orders/')
+# async def edit_order(order: OrderUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
 
-    order_proto = order_pb2.Order()
-    order_proto.id = order.id
-    order_proto.product_id = order.product_id
-    order_proto.quantity = order.quantity
+#     order_proto = order_pb2.Order()
+#     order_proto.id = order.id
+#     order_proto.product_id = order.product_id
+#     order_proto.quantity = order.quantity
 
-    order_proto.operation = order_pb2.OperationType.UPDATE
+#     order_proto.operation = order_pb2.OperationType.UPDATE
 
-    logger.info(f"Received order data for update: {order_proto}")
+#     logger.info(f"Received order data for update: {order_proto}")
         
-    serialized_order = order_proto.SerializeToString()
-    await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
+#     serialized_order = order_proto.SerializeToString()
+#     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
 
-    return {"Order": "Updated"}
+#     return {"Order": "Updated"}
     
 
 @app.delete('/orders/')

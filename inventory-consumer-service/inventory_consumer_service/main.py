@@ -7,8 +7,8 @@ from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI, HTTPException
 from inventory_consumer_service.models import Inventory
 from sqlmodel import Session, select
-from inventory_consumer_service import inventory_pb2
-from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_INVENTORY_TOPIC
+from inventory_consumer_service import inventory_pb2, order_pb2
+from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_INVENTORY_TOPIC, KAFKA_ORDER_TOPIC
 from inventory_consumer_service.db import create_tables, engine, get_session
 
 
@@ -35,38 +35,42 @@ async def lifespan(app: FastAPI):
 MAX_RETRIES = 5
 RETRY_INTERVAL = 10
 
-async def consume_inventory():
+async def create_consumer(topic: str):
     retries = 0
-
     while retries < MAX_RETRIES:
         try:
             consumer = AIOKafkaConsumer(
-                KAFKA_INVENTORY_TOPIC,
+                topic,
                 bootstrap_servers=BOOTSTRAP_SERVER,
                 group_id=KAFKA_CONSUMER_GROUP_ID,
-                auto_offset_reset='earliest',  # Start from the earliest message if no offset is committed
-                enable_auto_commit=True,       # Enable automatic offset committing
-                auto_commit_interval_ms=5000   # Interval for automatic offset commits
+                auto_offset_reset='earliest',
+                enable_auto_commit=True,
+                auto_commit_interval_ms=5000
             )
-
             await consumer.start()
-            logger.info("Consumer started successfully.")
-            break
+            logger.info(f"Consumer for topic {topic} started successfully.")
+            return consumer
         except Exception as e:
             retries += 1
-            logger.error(f"Error starting consumer, retry {retries}/{MAX_RETRIES}: {e}")
+            logger.error(f"Error starting consumer for topic {topic}, retry {retries}/{MAX_RETRIES}: {e}")
             if retries < MAX_RETRIES:
                 await asyncio.sleep(RETRY_INTERVAL)
             else:
-                logger.error("Max retries reached. Could not start consumer.")
-                return
+                logger.error(f"Max retries reached. Could not start consumer for topic {topic}.")
+                return None
+
+
+async def consume_inventory():
+    consumer = await create_consumer(KAFKA_INVENTORY_TOPIC)
+    if not consumer:
+        return
 
     try:
         async for msg in consumer:
             try:
                 inventory = inventory_pb2.Inventory()
                 inventory.ParseFromString(msg.value)
-                logger.info(f"Received Message: {inventory}")
+                logger.info(f"Received Inventory Message: {inventory}")
 
                 with Session(engine) as session:
                     if inventory.operation == inventory_pb2.OperationType.CREATE:
@@ -101,13 +105,52 @@ async def consume_inventory():
                             logger.warning(f"Inventory with ID {inventory.id} not found for deletion")
 
             except Exception as e:
-                logger.error(f"Error processing message: {e}")
+                logger.error(f"Error processing inventory message: {e}")
 
     finally:
         await consumer.stop()
-        logger.info("Consumer stopped")
-    return
-        
+        logger.info("Inventory consumer stopped")
+
+
+
+async def consume_orders():
+    consumer = await create_consumer('KAFKA_ORDER_TOPIC')
+    if not consumer:
+        return
+
+    try:
+        async for msg in consumer:
+            try:
+                order = order_pb2.Order()
+                order.ParseFromString(msg.value)
+                logger.info(f"Received Order Message: {order}")
+
+                with Session(engine) as session:
+                    existing_inventory = session.exec(select(Inventory).where(Inventory.product_id == order.product_id)).first()
+                    if existing_inventory:
+
+                        if order.operation == order_pb2.OperationType.CREATE:
+                            existing_inventory.stock_level -= order.quantity
+
+                        # elif order.operation == order_pb2.OperationType.UPDATE:
+                        #     existing_inventory.stock_level -= order.quantity
+
+                        elif order.operation == order_pb2.OperationType.DELETE:
+                            existing_inventory.stock_level += order.quantity
+
+                        session.add(existing_inventory)
+                        session.commit()
+                        session.refresh(existing_inventory)
+                        logger.info(f'Inventory updated in db: {existing_inventory}')
+                    else:
+                        logger.warning(f"No inventory found for product ID {order.product_id}")
+
+            except Exception as e:
+                logger.error(f"Error processing order message: {e}")
+
+    finally:
+        await consumer.stop()
+        logger.info("Order consumer stopped")
 
 
 app = FastAPI(lifespan=lifespan, title="Inventory Consumer Service", version='1.0.0')

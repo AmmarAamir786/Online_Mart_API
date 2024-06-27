@@ -75,17 +75,17 @@ async def consume_orders():
                         session.refresh(new_order)
                         logger.info(f'Order added to db: {new_order}')
                     
-                    elif order.operation == order_pb2.OperationType.UPDATE:
-                        existing_order = session.exec(select(OrderItem).where(OrderItem.id == order.id)).first()
-                        if existing_order:
-                            existing_order.product_id = order.product_id
-                            existing_order.quantity = order.quantity
-                            session.add(existing_order)
-                            session.commit()
-                            session.refresh(existing_order)
-                            logger.info(f'Order updated in db: {existing_order}')
-                        else:
-                            logger.warning(f"Order with ID {order.id} not found")
+                    # elif order.operation == order_pb2.OperationType.UPDATE:
+                    #     existing_order = session.exec(select(OrderItem).where(OrderItem.id == order.id)).first()
+                    #     if existing_order:
+                    #         existing_order.product_id = order.product_id
+                    #         existing_order.quantity = order.quantity
+                    #         session.add(existing_order)
+                    #         session.commit()
+                    #         session.refresh(existing_order)
+                    #         logger.info(f'Order updated in db: {existing_order}')
+                    #     else:
+                    #         logger.warning(f"Order with ID {order.id} not found")
 
                     elif order.operation == order_pb2.OperationType.DELETE:
                         existing_order = session.exec(select(OrderItem).where(OrderItem.id == order.id)).first()
