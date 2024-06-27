@@ -24,12 +24,16 @@ async def lifespan(app: FastAPI):
     logger.info("Tables Created")
 
     loop = asyncio.get_event_loop()
-    task = loop.create_task(create_consumer())
+    tasks = [
+        loop.create_task(consume_inventory()),
+        loop.create_task(consume_orders())
+    ]
     
     yield
 
-    task.cancel()
-    await task
+    for task in tasks:
+        task.cancel()
+        await task
 
 
 MAX_RETRIES = 5
@@ -63,6 +67,7 @@ async def create_consumer(topic: str):
 async def consume_inventory():
     consumer = await create_consumer(KAFKA_INVENTORY_TOPIC)
     if not consumer:
+        logger.error("Failed to create kafka inventory consumer")
         return
 
     try:
@@ -116,7 +121,7 @@ async def consume_inventory():
 async def consume_orders():
     consumer = await create_consumer(KAFKA_ORDER_TOPIC)
     if not consumer:
-        logger.error("Failed to create Kafka consumer")
+        logger.error("Failed to create Kafka order consumer")
         return
 
     try:
