@@ -1,14 +1,10 @@
 syntax = "proto3";
 
-enum InventoryOperationType {
-  CREATE = 0;
-  UPDATE = 1;
-  DELETE = 2;
-}
+import "operation.proto";
 
 message Inventory {
   optional int32 id = 1;
   optional int32 product_id = 2;
   optional int32 stock_level = 3;
-  optional InventoryOperationType operation = 4;
+  optional OperationType operation = 4;
 }

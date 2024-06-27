@@ -4,7 +4,7 @@ import logging
 from typing import Annotated, AsyncGenerator
 from fastapi import Depends, FastAPI
 
-from order_service import order_pb2
+from order_service.proto import order_pb2, operation_pb2
 
 from order_service.models import Order, OrderUpdate
 from order_service.setting import BOOTSTRAP_SERVER, KAFKA_ORDER_TOPIC
@@ -82,7 +82,7 @@ async def create_order(
     order_proto.product_id = order.product_id
     order_proto.quantity = order.quantity
 
-    order_proto.operation = order_pb2.OrderOperationType.CREATE
+    order_proto.operation = operation_pb2.OperationType.CREATE
 
     logger.info(f"Received Message: {order_proto}")
 
@@ -100,7 +100,7 @@ async def create_order(
 #     order_proto.product_id = order.product_id
 #     order_proto.quantity = order.quantity
 
-#     order_proto.operation = order_pb2.OrderOperationType.UPDATE
+#     order_proto.operation = operation_pb2.OperationType.UPDATE
 
 #     logger.info(f"Received order data for update: {order_proto}")
         
@@ -114,7 +114,7 @@ async def create_order(
 async def delete_order(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
     order_proto = order_pb2.Order()
     order_proto.id = id
-    order_proto.operation = order_pb2.OrderOperationType.DELETE
+    order_proto.operation = operation_pb2.OperationType.DELETE
 
     serialized_order = order_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)

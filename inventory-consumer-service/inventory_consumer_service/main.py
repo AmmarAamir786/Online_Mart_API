@@ -7,7 +7,7 @@ from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI, HTTPException
 from inventory_consumer_service.models import Inventory
 from sqlmodel import Session, select
-from inventory_consumer_service import inventory_pb2, order_pb2
+from inventory_consumer_service.proto import inventory_pb2, order_pb2, operation_pb2
 from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_INVENTORY_TOPIC, KAFKA_ORDER_TOPIC
 from inventory_consumer_service.db import create_tables, engine, get_session
 
@@ -73,7 +73,7 @@ async def consume_inventory():
                 logger.info(f"Received Inventory Message: {inventory}")
 
                 with Session(engine) as session:
-                    if inventory.operation == inventory_pb2.InventoryOperationType.CREATE:
+                    if inventory.operation == operation_pb2.OperationType.CREATE:
                         new_inventory = Inventory(
                             product_id=inventory.product_id,
                             stock_level=inventory.stock_level
@@ -83,7 +83,7 @@ async def consume_inventory():
                         session.refresh(new_inventory)
                         logger.info(f'Inventory added to db: {new_inventory}')
                     
-                    elif inventory.operation == inventory_pb2.InventoryOperationType.UPDATE:
+                    elif inventory.operation == operation_pb2.OperationType.UPDATE:
                         existing_inventory = session.exec(select(Inventory).where(Inventory.id == inventory.id)).first()
                         if existing_inventory:
                             existing_inventory.product_id = inventory.product_id
@@ -95,7 +95,7 @@ async def consume_inventory():
                         else:
                             logger.warning(f"Inventory with ID {inventory.id} not found")
 
-                    elif inventory.operation == inventory_pb2.InventoryOperationType.DELETE:
+                    elif inventory.operation == operation_pb2.OperationType.DELETE:
                         existing_inventory = session.exec(select(Inventory).where(Inventory.id == inventory.id)).first()
                         if existing_inventory:
                             session.delete(existing_inventory)
@@ -129,13 +129,13 @@ async def consume_orders():
                     existing_inventory = session.exec(select(Inventory).where(Inventory.product_id == order.product_id)).first()
                     if existing_inventory:
 
-                        if order.operation == order_pb2.OrderOperationType.CREATE:
+                        if order.operation == operation_pb2.OperationType.CREATE:
                             existing_inventory.stock_level -= order.quantity
 
-                        # elif order.operation == order_pb2.OrderOperationType.UPDATE:
+                        # elif order.operation == operation_pb2.OperationType.UPDATE:
                         #     existing_inventory.stock_level -= order.quantity
 
-                        elif order.operation == order_pb2.OrderOperationType.DELETE:
+                        elif order.operation == operation_pb2.OperationType.DELETE:
                             existing_inventory.stock_level += order.quantity
 
                         session.add(existing_inventory)

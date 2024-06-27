@@ -4,7 +4,7 @@ import logging
 from typing import Annotated, AsyncGenerator
 from fastapi import Depends, FastAPI
 
-from inventory_service import inventory_pb2
+from inventory_service.proto import inventory_pb2, operation_pb2
 
 from inventory_service.models import InventoryUpdate, Inventory
 from inventory_service.setting import BOOTSTRAP_SERVER, KAFKA_INVENTORY_TOPIC
@@ -81,7 +81,7 @@ async def create_inventory(
     inventory_proto = inventory_pb2.Inventory()
     inventory_proto.product_id = inventory.product_id
     inventory_proto.stock_level = inventory.stock_level
-    inventory_proto.operation = inventory_pb2.InventoryOperationType.CREATE
+    inventory_proto.operation = operation_pb2.OperationType.CREATE
 
     # logger.info(f"Received Message: {inventory_proto}")
 
@@ -100,7 +100,7 @@ async def edit_inventory(inventory: InventoryUpdate, producer: Annotated[AIOKafk
     inventory_proto.id = inventory.id
     inventory_proto.product_id = inventory.product_id
     inventory_proto.stock_level = inventory.stock_level
-    inventory_proto.operation = inventory_pb2.InventoryOperationType.UPDATE
+    inventory_proto.operation = operation_pb2.OperationType.UPDATE
         
     serialized_inventory = inventory_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_INVENTORY_TOPIC, serialized_inventory)
@@ -112,7 +112,7 @@ async def edit_inventory(inventory: InventoryUpdate, producer: Annotated[AIOKafk
 async def delete_inventory(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
     inventory_proto = inventory_pb2.Inventory()
     inventory_proto.id = id
-    inventory_proto.operation = inventory_pb2.InventoryOperationType.DELETE
+    inventory_proto.operation = operation_pb2.OperationType.DELETE
 
     serialized_inventory = inventory_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_INVENTORY_TOPIC, serialized_inventory)

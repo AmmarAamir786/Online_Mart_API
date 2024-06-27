@@ -4,7 +4,7 @@ import logging
 from typing import Annotated, AsyncGenerator
 from fastapi import Depends, FastAPI
 
-from product_service import product_pb2
+from product_service.proto import product_pb2, operation_pb2
 
 from product_service.models import Product, ProductUpdate
 from product_service.setting import BOOTSTRAP_SERVER, KAFKA_PRODUCT_TOPIC
@@ -83,7 +83,7 @@ async def create_product(
     product_proto.price = product.price
     product_proto.category = product.category
     product_proto.description = product.description
-    product_proto.operation = product_pb2.ProductOperationType.CREATE
+    product_proto.operation = operation_pb2.OperationType.CREATE
 
     # logger.info(f"Received Message: {product_proto}")
 
@@ -104,7 +104,7 @@ async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProdu
     product_proto.price = product.price
     product_proto.category = product.category
     product_proto.description = product.description
-    product_proto.operation = product_pb2.ProductOperationType.UPDATE
+    product_proto.operation = operation_pb2.OperationType.UPDATE
         
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
@@ -116,7 +116,7 @@ async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProdu
 async def delete_product(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
     product_proto = product_pb2.Product()
     product_proto.id = id
-    product_proto.operation = product_pb2.ProductOperationType.DELETE
+    product_proto.operation = operation_pb2.OperationType.DELETE
 
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)

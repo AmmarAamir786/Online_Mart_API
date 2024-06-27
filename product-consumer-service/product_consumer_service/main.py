@@ -7,7 +7,7 @@ from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI, HTTPException
 from product_consumer_service.models import Product
 from sqlmodel import Session, select
-from product_consumer_service import product_pb2
+from product_consumer_service.proto import product_pb2, operation_pb2
 from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_PRODUCT_TOPIC
 from product_consumer_service.db import create_tables, engine, get_session
 
@@ -69,7 +69,7 @@ async def consume_products():
                 logger.info(f"Received Message: {product}")
 
                 with Session(engine) as session:
-                    if product.operation == product_pb2.ProductOperationType.CREATE:
+                    if product.operation == operation_pb2.OperationType.CREATE:
                         new_product = Product(
                             name=product.name,
                             description=product.description,
@@ -81,7 +81,7 @@ async def consume_products():
                         session.refresh(new_product)
                         logger.info(f'Product added to db: {new_product}')
                     
-                    elif product.operation == product_pb2.ProductOperationType.UPDATE:
+                    elif product.operation == operation_pb2.OperationType.UPDATE:
                         existing_product = session.exec(select(Product).where(Product.id == product.id)).first()
                         if existing_product:
                             existing_product.name = product.name
@@ -95,7 +95,7 @@ async def consume_products():
                         else:
                             logger.warning(f"Product with ID {product.id} not found")
 
-                    elif product.operation == product_pb2.ProductOperationType.DELETE:
+                    elif product.operation == operation_pb2.OperationType.DELETE:
                         existing_product = session.exec(select(Product).where(Product.id == product.id)).first()
                         if existing_product:
                             session.delete(existing_product)
