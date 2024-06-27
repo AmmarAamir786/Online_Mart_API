@@ -22,7 +22,7 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-import operation_pb2 as operation__pb2
+from . import operation_pb2 as operation__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0finventory.proto\x1a\x0foperation.proto\"\xab\x01\n\tInventory\x12\x0f\n\x02id\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x17\n\nproduct_id\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12\x18\n\x0bstock_level\x18\x03 \x01(\x05H\x02\x88\x01\x01\x12&\n\toperation\x18\x04 \x01(\x0e\x32\x0e.OperationTypeH\x03\x88\x01\x01\x42\x05\n\x03_idB\r\n\x0b_product_idB\x0e\n\x0c_stock_levelB\x0c\n\n_operationb\x06proto3')
