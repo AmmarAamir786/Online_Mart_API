@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     logger.info("Tables Created")
 
     loop = asyncio.get_event_loop()
-    task = loop.create_task(consume_inventory())
+    task = loop.create_task(create_consumer())
     
     yield
 
