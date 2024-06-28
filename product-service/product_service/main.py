@@ -80,6 +80,7 @@ async def create_product(
     
     product_proto = product_pb2.Product()
     product_proto.name = product.name
+    product_proto.product_id = product.product_id
     product_proto.price = product.price
     product_proto.category = product.category
     product_proto.description = product.description
@@ -100,6 +101,7 @@ async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProdu
 
     product_proto = product_pb2.Product()
     product_proto.id = product.id
+    product_proto.product_id = product.product_id
     product_proto.name = product.name
     product_proto.price = product.price
     product_proto.category = product.category

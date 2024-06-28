@@ -72,6 +72,7 @@ async def consume_products():
                     if product.operation == operation_pb2.OperationType.CREATE:
                         new_product = Product(
                             name=product.name,
+                            product_id=product.product_id,
                             description=product.description,
                             price=product.price,
                             category=product.category
