@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from inventory_consumer_service.models import Inventory
 from sqlmodel import Session, select
 from inventory_consumer_service.proto import inventory_pb2, order_pb2, operation_pb2
-from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_INVENTORY_TOPIC, KAFKA_ORDER_TOPIC
+from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_INVENTORY_TOPIC, KAFKA_ORDER_TOPIC, KAFKA_CONFIRMATION_TOPIC
 from inventory_consumer_service.db import create_tables, engine, get_session
 
 
@@ -26,6 +26,7 @@ async def lifespan(app: FastAPI):
     loop = asyncio.get_event_loop()
     tasks = [
         loop.create_task(consume_inventory()),
+        loop.create_task(consume_confirmation()),
         loop.create_task(consume_orders())
     ]
     
@@ -78,17 +79,8 @@ async def consume_inventory():
                 logger.info(f"Received Inventory Message: {inventory}")
 
                 with Session(engine) as session:
-                    if inventory.operation == operation_pb2.OperationType.CREATE:
-                        new_inventory = Inventory(
-                            product_id=inventory.product_id,
-                            stock_level=inventory.stock_level
-                        )
-                        session.add(new_inventory)
-                        session.commit()
-                        session.refresh(new_inventory)
-                        logger.info(f'Inventory added to db: {new_inventory}')
                     
-                    elif inventory.operation == operation_pb2.OperationType.UPDATE:
+                    if inventory.operation == operation_pb2.OperationType.UPDATE:
                         existing_inventory = session.exec(select(Inventory).where(Inventory.id == inventory.id)).first()
                         if existing_inventory:
                             existing_inventory.product_id = inventory.product_id
@@ -116,6 +108,37 @@ async def consume_inventory():
         await consumer.stop()
         logger.info("Inventory consumer stopped")
 
+
+async def consume_confirmation():
+    consumer = await create_consumer(KAFKA_CONFIRMATION_TOPIC)
+    if not consumer:
+        logger.error("Failed to create kafka confirmation consumer")
+        return
+
+    try:
+        async for msg in consumer:
+            try:
+                inventory = inventory_pb2.Inventory()
+                inventory.ParseFromString(msg.value)
+                logger.info(f"Received Inventory Message: {inventory}")
+
+                with Session(engine) as session:
+                    if inventory.operation == operation_pb2.OperationType.CREATE:
+                        new_inventory = Inventory(
+                            product_id=inventory.product_id,
+                            stock_level=inventory.stock_level
+                        )
+                        session.add(new_inventory)
+                        session.commit()
+                        session.refresh(new_inventory)
+                        logger.info(f'Inventory added to db: {new_inventory}')
+
+            except Exception as e:
+                logger.error(f"Error processing inventory message: {e}")
+
+    finally:
+        await consumer.stop()
+        logger.info("Inventory consumer stopped")
 
 
 async def consume_orders():
