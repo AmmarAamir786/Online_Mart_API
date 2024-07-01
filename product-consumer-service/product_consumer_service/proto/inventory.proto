@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "operation.proto";
+
+message Inventory {
+  optional int32 id = 1;
+  optional int32 product_id = 2;
+  optional int32 stock_level = 3;
+  optional OperationType operation = 4;
+}
