@@ -51,14 +51,14 @@ async def create_topic():
     while retries < MAX_RETRIES:
         try:
             await admin_client.start()
-            topic_list = [NewTopic(name=KAFKA_PRODUCT_TOPIC,
+            topic_list = [NewTopic(name=KAFKA_CONFIRMATION_TOPIC,
                                 num_partitions=2, 
                                 replication_factor=1)]
             try:
                 await admin_client.create_topics(new_topics=topic_list, validate_only=False)
-                print(f"Topic '{KAFKA_PRODUCT_TOPIC}' created successfully")
+                print(f"Topic '{KAFKA_CONFIRMATION_TOPIC}' created successfully")
             except Exception as e:
-                print(f"Failed to create topic '{KAFKA_PRODUCT_TOPIC}': {e}")
+                print(f"Failed to create topic '{KAFKA_CONFIRMATION_TOPIC}': {e}")
             finally:
                 await admin_client.close()
             return
