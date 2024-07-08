@@ -3,14 +3,11 @@ from contextlib import asynccontextmanager
 import logging
 from typing import List
 
-from aiokafka import AIOKafkaConsumer
 from fastapi import FastAPI, HTTPException
 from inventory_consumer_service.consumers.consume_inventory import consume_inventory
 from inventory_consumer_service.consumers.consume_product_confirmation import consume_product_confirmation
 from inventory_consumer_service.models import Inventory
 from sqlmodel import Session, select
-from inventory_consumer_service.proto import inventory_pb2, order_pb2, operation_pb2
-from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID, KAFKA_INVENTORY_TOPIC, KAFKA_ORDER_TOPIC, KAFKA_CONFIRMATION_TOPIC
 from inventory_consumer_service.db import create_tables, engine, get_session
 
 
