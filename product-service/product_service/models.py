@@ -11,7 +11,7 @@ class Product (BaseModel):
 
 
 class ProductUpdate(BaseModel):
-    id: int
+    # id: int
     product_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None

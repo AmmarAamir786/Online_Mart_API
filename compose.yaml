@@ -41,42 +41,42 @@ services:
         - product_db:/var/lib/postgresql/data
 
 
-  order-service:
-    build:
-      context: ./order-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./order-service:/app  # Sync local development directory with the container
-    depends_on:
-      - kafka-ui
-      - broker
-    ports:
-      - "8002:8000"  # Expose container port 8000 to host port 8000 
+  # order-service:
+  #   build:
+  #     context: ./order-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./order-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - kafka-ui
+  #     - broker
+  #   ports:
+  #     - "8002:8000"  # Expose container port 8000 to host port 8000 
 
-  order-consumer-service:
-    build:
-      context: ./order-consumer-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./order-consumer-service:/app  # Sync local development directory with the container
-    depends_on:
-      - order_db
-      - broker
-    ports:
-      - "8003:8000"  # Expose container port 8000 to host port 8000 
+  # order-consumer-service:
+  #   build:
+  #     context: ./order-consumer-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./order-consumer-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - order_db
+  #     - broker
+  #   ports:
+  #     - "8003:8000"  # Expose container port 8000 to host port 8000 
 
-  order_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: Order_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=order_db
-    ports:
-        - '5434:5432'
-    volumes:
-        - order_db:/var/lib/postgresql/data
+  # order_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: Order_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=order_db
+  #   ports:
+  #       - '5434:5432'
+  #   volumes:
+  #       - order_db:/var/lib/postgresql/data
 
 
   inventory-service:
@@ -155,8 +155,8 @@ services:
 volumes:
   product_db:
     driver: local
-  order_db:
-    driver: local
+  # order_db:
+  #   driver: local
   inventory_db:
     driver: local
 

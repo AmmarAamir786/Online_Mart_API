@@ -65,7 +65,7 @@ app = FastAPI(lifespan=lifespan, title="Product Service", version='1.0.0')
 
 # @app.get('/')
 # async def root() -> Any:
-#     return {"message": "Welcome to products section test"}
+#     return {"message": "Welcome to products section"}
 
 
 # logging.basicConfig(level= logging.INFO)
@@ -95,12 +95,12 @@ async def create_product(
 
 
 @app.put('/products/')
-async def edit_product(product: ProductUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
+async def edit_product(product: ProductUpdate, id:int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
 
     # logger.info(f"Received product data for update: {product}")
 
     product_proto = product_pb2.Product()
-    product_proto.id = product.id
+    product_proto.id = id
     product_proto.product_id = product.product_id
     product_proto.name = product.name
     product_proto.price = product.price
