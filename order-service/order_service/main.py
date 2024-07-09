@@ -2,11 +2,11 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from typing import Annotated, AsyncGenerator
-from utils.uuid import short_uuid
 from fastapi import Depends, FastAPI
 
 from order_service.proto import order_pb2, operation_pb2
 from order_service.utils.logger import logger
+from order_service.utils.uuid import short_uuid
 from order_service.models import OrderCreate, OrderUpdate, Order, OrderProduct
 from order_service.setting import BOOTSTRAP_SERVER, KAFKA_ORDER_TOPIC
 from aiokafka import AIOKafkaProducer
