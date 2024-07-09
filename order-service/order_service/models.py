@@ -8,9 +8,11 @@ class OrderProduct(BaseModel):
     product_id: int
     quantity: int
 
+
 class Order(BaseModel):
     products: List[OrderProduct]
-    order_id: Optional[str] = Field(default_factory=lambda: str(uuid4()))
+    order_id: Optional[str] = Field(default_factory=lambda: str(uuid4()), exclude=True)
+
 
 class OrderUpdate(BaseModel):
     order_id: str
