@@ -13,6 +13,10 @@ from aiokafka.errors import KafkaConnectionError
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 
 
+logging.basicConfig(level= logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 MAX_RETRIES = 5
 RETRY_INTERVAL = 10
 
@@ -63,60 +67,65 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(lifespan=lifespan, title="Order Service", version='1.0.0')
 
 
-@app.get('/')
-async def root():
-    return {"message": "Welcome to orders section"}
-
-
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
-
-
 @app.post('/orders/')
 async def create_order(
     order: Order,
     producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
 ):
-    
     order_proto = order_pb2.Order()
-    order_proto.product_id = order.product_id
-    order_proto.quantity = order.quantity
+    order_proto.order_id = order.order_id
+    order_proto.operation = order_pb2.OperationType.CREATE
 
-    order_proto.operation = operation_pb2.OperationType.CREATE
+    for product in order.products:
+        order_product_proto = order_pb2.OrderProduct()
+        order_product_proto.product_id = product.product_id
+        order_product_proto.quantity = product.quantity
+        order_proto.products.append(order_product_proto)
 
-    logger.info(f"Received Message: {order_proto}")
+    logger.info(f"Sending order {order_proto} to kafka")
 
     serialized_order = order_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
 
-    return {"Order" : "Created"}
+    return {"Order": "Created"}
 
 
-# @app.put('/orders/')
-# async def edit_order(order: OrderUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
+@app.put('/orders/')
+async def edit_order(
+    order: OrderUpdate,
+    producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
+):
+    order_proto = order_pb2.Order()
+    order_proto.order_id = order.order_id
+    order_proto.operation = order_pb2.OperationType.UPDATE
 
-#     order_proto = order_pb2.Order()
-#     order_proto.id = order.id
-#     order_proto.product_id = order.product_id
-#     order_proto.quantity = order.quantity
+    if order.products:
+        for product in order.products:
+            order_product_proto = order_pb2.OrderProduct()
+            order_product_proto.product_id = product.product_id
+            order_product_proto.quantity = product.quantity
+            order_proto.products.append(order_product_proto)
 
-#     order_proto.operation = operation_pb2.OperationType.UPDATE
+    logger.info(f"Sending order {order_proto} to kafka")
 
-#     logger.info(f"Received order data for update: {order_proto}")
-        
-#     serialized_order = order_proto.SerializeToString()
-#     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
+    serialized_order = order_proto.SerializeToString()
+    await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
 
-#     return {"Order": "Updated"}
-    
+    return {"Order": "Updated"}
+
 
 @app.delete('/orders/')
-async def delete_order(id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
+async def delete_order(
+    order_id: str,
+    producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
+):
     order_proto = order_pb2.Order()
-    order_proto.id = id
-    order_proto.operation = operation_pb2.OperationType.DELETE
+    order_proto.order_id = order_id
+    order_proto.operation = order_pb2.OperationType.DELETE
+
+    logger.info(f"Sending order {order_proto} to kafka")
 
     serialized_order = order_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
 
-    return {"Order" : "Deleted"}
+    return {"Order": "Deleted"}
