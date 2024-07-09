@@ -74,7 +74,7 @@ async def create_order(
 ):
     order_proto = order_pb2.Order()
     order_proto.order_id = order.order_id
-    order_proto.operation = order_pb2.OperationType.CREATE
+    order_proto.operation = operation_pb2.OperationType.CREATE
 
     for product in order.products:
         order_product_proto = order_pb2.OrderProduct()
@@ -97,7 +97,7 @@ async def edit_order(
 ):
     order_proto = order_pb2.Order()
     order_proto.order_id = order.order_id
-    order_proto.operation = order_pb2.OperationType.UPDATE
+    order_proto.operation = operation_pb2.OperationType.UPDATE
 
     if order.products:
         for product in order.products:
@@ -121,7 +121,7 @@ async def delete_order(
 ):
     order_proto = order_pb2.Order()
     order_proto.order_id = order_id
-    order_proto.operation = order_pb2.OperationType.DELETE
+    order_proto.operation = operation_pb2.OperationType.DELETE
 
     logger.info(f"Sending order {order_proto} to kafka")
 
