@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from utils.uuid import short_uuid
+from order_service.utils.uuid import short_uuid
 from sqlmodel import Field
 
 class OrderProduct(BaseModel):
