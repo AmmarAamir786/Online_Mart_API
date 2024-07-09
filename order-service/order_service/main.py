@@ -2,11 +2,12 @@ import asyncio
 from contextlib import asynccontextmanager
 import logging
 from typing import Annotated, AsyncGenerator
+from uuid import uuid4
 from fastapi import Depends, FastAPI
 
 from order_service.proto import order_pb2, operation_pb2
 
-from order_service.models import Order, OrderUpdate
+from order_service.models import OrderCreate, OrderUpdate, Order, OrderProduct
 from order_service.setting import BOOTSTRAP_SERVER, KAFKA_ORDER_TOPIC
 from aiokafka import AIOKafkaProducer
 from aiokafka.errors import KafkaConnectionError
@@ -69,11 +70,12 @@ app = FastAPI(lifespan=lifespan, title="Order Service", version='1.0.0')
 
 @app.post('/orders/')
 async def create_order(
-    order: Order,
+    order: OrderCreate,
     producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
 ):
+    order_id = str(uuid4())
     order_proto = order_pb2.Order()
-    order_proto.order_id = order.order_id
+    order_proto.order_id = order_id
     order_proto.operation = operation_pb2.OperationType.CREATE
 
     for product in order.products:
@@ -87,7 +89,7 @@ async def create_order(
     serialized_order = order_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
 
-    return {"Order": "Created"}
+    return {"Order": "Created", "order_id": order_id}
 
 
 @app.put('/orders/')
