@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from typing import Dict, List, Optional
-from uuid import uuid4
+from typing import List, Optional
+from utils.uuid import short_uuid
 from sqlmodel import Field
 
 class OrderProduct(BaseModel):
@@ -11,7 +11,7 @@ class OrderCreate(BaseModel):
     products: List[OrderProduct]
 
 class Order(BaseModel):
-    order_id: str = Field(default_factory=lambda: str(uuid4()))
+    order_id: str = Field(default_factory=lambda: str(short_uuid()))
     products: List[OrderProduct]
 
 class OrderUpdate(BaseModel):
