@@ -10,6 +10,6 @@ message OrderProduct {
 
 message Order {
   optional string order_id = 1;  
-  optional repeated OrderProduct products = 2;
+  repeated OrderProduct products = 2;
   optional OperationType operation = 3;
 }

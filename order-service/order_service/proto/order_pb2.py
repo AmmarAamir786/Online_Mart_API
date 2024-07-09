@@ -22,16 +22,18 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from . import operation_pb2 as operation__pb2
+import operation_pb2 as operation__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0border.proto\x1a\x0foperation.proto\"\xa1\x01\n\x05Order\x12\x0f\n\x02id\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x17\n\nproduct_id\x18\x02 \x01(\x05H\x01\x88\x01\x01\x12\x15\n\x08quantity\x18\x03 \x01(\x05H\x02\x88\x01\x01\x12&\n\toperation\x18\x04 \x01(\x0e\x32\x0e.OperationTypeH\x03\x88\x01\x01\x42\x05\n\x03_idB\r\n\x0b_product_idB\x0b\n\t_quantityB\x0c\n\n_operationb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0border.proto\x1a\x0foperation.proto\"Z\n\x0cOrderProduct\x12\x17\n\nproduct_id\x18\x01 \x01(\x05H\x00\x88\x01\x01\x12\x15\n\x08quantity\x18\x02 \x01(\x05H\x01\x88\x01\x01\x42\r\n\x0b_product_idB\x0b\n\t_quantity\"\x82\x01\n\x05Order\x12\x15\n\x08order_id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x1f\n\x08products\x18\x02 \x03(\x0b\x32\r.OrderProduct\x12&\n\toperation\x18\x03 \x01(\x0e\x32\x0e.OperationTypeH\x01\x88\x01\x01\x42\x0b\n\t_order_idB\x0c\n\n_operationb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'order_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ORDER']._serialized_start=33
-  _globals['_ORDER']._serialized_end=194
+  _globals['_ORDERPRODUCT']._serialized_start=32
+  _globals['_ORDERPRODUCT']._serialized_end=122
+  _globals['_ORDER']._serialized_start=125
+  _globals['_ORDER']._serialized_end=255
 # @@protoc_insertion_point(module_scope)
