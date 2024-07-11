@@ -22,11 +22,11 @@ async def lifespan(app: FastAPI):
     create_tables()
     logger.info("Tables Created")
 
-    await create_topic()
+    # await create_topic()
 
     loop = asyncio.get_event_loop()
     tasks = [
-        loop.create_task(consume_inventory()),
+        # loop.create_task(consume_inventory()),
         loop.create_task(consume_products())
     ]
     

@@ -68,8 +68,8 @@ app = FastAPI(lifespan=lifespan, title="Product Service", version='1.0.0')
 #     return {"message": "Welcome to products section"}
 
 
-# logging.basicConfig(level= logging.INFO)
-# logger = logging.getLogger(__name__)
+logging.basicConfig(level= logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @app.post('/products/')
@@ -86,7 +86,7 @@ async def create_product(
     product_proto.description = product.description
     product_proto.operation = operation_pb2.OperationType.CREATE
 
-    # logger.info(f"Received Message: {product_proto}")
+    logger.info(f"Received Message: {product_proto}")
 
     serialized_product = product_proto.SerializeToString()
     await producer.send_and_wait(KAFKA_PRODUCT_TOPIC, serialized_product)
@@ -94,10 +94,10 @@ async def create_product(
     return {"Product" : "Created"}
 
 
-@app.put('/products/')
+@app.put('/products')
 async def edit_product(product: ProductUpdate, id:int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
 
-    # logger.info(f"Received product data for update: {product}")
+    logger.info(f"Received product data for update: {product}")
 
     product_proto = product_pb2.Product()
     product_proto.id = id
