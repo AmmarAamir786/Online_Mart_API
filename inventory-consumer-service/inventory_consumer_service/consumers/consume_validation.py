@@ -4,7 +4,7 @@ import logging
 from aiokafka import AIOKafkaProducer
 from inventory_consumer_service.consumers.consumer import create_consumer
 from inventory_consumer_service.models import Inventory
-from product_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_INVENTORY_TOPIC, KAFKA_INVENTORY_CONSUMER_GROUP_ID, KAFKA_PRODUCT_CONFIRMATION_TOPIC, KAFKA_INVENTORY_CONFIRMATION__CONSUMER_GROUP_ID, KAFKA_INVENTORY_VALIDATION_GROUP_ID, KAFKA_ORDER_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC
+from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_INVENTORY_VALIDATION_GROUP_ID, KAFKA_ORDER_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC
 from sqlmodel import Session, select
 from inventory_consumer_service.proto import  operation_pb2, order_pb2
 from inventory_consumer_service.db import engine, get_session
