@@ -6,7 +6,7 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 from inventory_consumer_service.consumers.consume_inventory import consume_inventory
 from inventory_consumer_service.consumers.consume_product_confirmation import consume_product_confirmation
-from inventory_consumer_service.consumers.consume_validation import consume_validation
+from inventory_consumer_service.consumers.consume_validation import consume_validation, create_topic
 from inventory_consumer_service.models import Inventory
 from sqlmodel import Session, select
 from inventory_consumer_service.db import create_tables, engine, get_session
@@ -22,6 +22,8 @@ async def lifespan(app: FastAPI):
     logger.info('Creating Tables')
     create_tables()
     logger.info("Tables Created")
+
+    await create_topic()
 
     loop = asyncio.get_event_loop()
     tasks = [

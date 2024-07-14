@@ -2,9 +2,14 @@ syntax = "proto3";
 
 import "operation.proto";
 
+message OrderProduct {
+  optional int32 product_id = 1;
+  optional int32 quantity = 2;
+}
+
+
 message Order {
-  optional int32 id = 1;
-  optional int32 product_id = 2;
-  optional int32 quantity = 3;
-  optional OperationType operation = 4;
+  optional string order_id = 1;  
+  repeated OrderProduct products = 2;
+  optional OperationType operation = 3;
 }
