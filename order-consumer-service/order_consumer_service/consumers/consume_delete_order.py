@@ -1,5 +1,5 @@
 from aiokafka import AIOKafkaProducer
-from product_consumer_service.db import get_session
+from order_consumer_service.db import get_session
 from sqlmodel import select
 from order_consumer_service.consumers.consumer import create_consumer
 from order_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_ORDER_CONSUMER_GROUP_ID, KAFKA_ORDER_TOPIC
