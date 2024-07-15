@@ -38,9 +38,9 @@ async def consume_validation():
                                 logger.error(f"Product with ID {product_id} does not exist. Order validation failed.")
                                 break
 
-                            if existing_product.quantity < required_quantity:
+                            if existing_product.stock_level < required_quantity:
                                 valid_order = False
-                                logger.error(f"Insufficient quantity for product ID {product_id}. Order validation failed.")
+                                logger.error(f"Insufficient stock level for product ID {product_id}. Order validation failed.")
                                 break
 
                     if valid_order:

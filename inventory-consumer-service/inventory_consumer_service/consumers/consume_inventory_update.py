@@ -29,10 +29,10 @@ async def consume_inventory_update():
                             existing_product = session.exec(select(Inventory).where(Inventory.product_id == product_id)).first()
 
                             if existing_product:
-                                if existing_product.quantity < required_quantity:
-                                    logger.error(f"Insufficient quantity for product ID {product_id}. Inventory update failed.")
+                                if existing_product.stock_level < required_quantity:
+                                    logger.error(f"Insufficient stock level for product ID {product_id}. Inventory update failed.")
                                 else:
-                                    existing_product.quantity -= required_quantity
+                                    existing_product.stock_level -= required_quantity
                                     session.add(existing_product)
                                     logger.info(f"Updated inventory for product ID {product_id}, deducted quantity: {required_quantity}")
                             else:
@@ -48,7 +48,7 @@ async def consume_inventory_update():
                             existing_product = session.exec(select(Inventory).where(Inventory.product_id == product_id)).first()
 
                             if existing_product:
-                                existing_product.quantity += quantity_change
+                                existing_product.stock_level += quantity_change
                                 session.add(existing_product)
                                 logger.info(f"Updated inventory for product ID {product_id}, change in quantity: {quantity_change}")
                             else:
@@ -64,7 +64,7 @@ async def consume_inventory_update():
                             existing_product = session.exec(select(Inventory).where(Inventory.product_id == product_id)).first()
 
                             if existing_product:
-                                existing_product.quantity += added_quantity
+                                existing_product.stock_level += added_quantity
                                 session.add(existing_product)
                                 logger.info(f"Updated inventory for product ID {product_id}, added back quantity: {added_quantity}")
                             else:
