@@ -7,6 +7,7 @@ from sqlmodel import Session, select
 from inventory_consumer_service.consumers.consume_inventory import consume_inventory
 from inventory_consumer_service.consumers.consume_product_confirmation import consume_product_confirmation
 from inventory_consumer_service.consumers.consume_validation import consume_validation
+from inventory_consumer_service.consumers.consume_inventory_update import consume_inventory_update
 
 from inventory_consumer_service.models import Inventory
 from inventory_consumer_service.db import create_tables, engine, get_session
@@ -28,7 +29,8 @@ async def lifespan(app: FastAPI):
     tasks = [
         loop.create_task(consume_inventory()),
         loop.create_task(consume_product_confirmation()),
-        loop.create_task(consume_validation())
+        loop.create_task(consume_validation()),
+        loop.create_task(consume_inventory_update())
     ]
     
     yield

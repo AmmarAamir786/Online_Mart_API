@@ -1,7 +1,6 @@
 import asyncio
 from aiokafka.errors import KafkaConnectionError
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
-from product_consumer_service.setting import KAFKA_PRODUCT_CONFIRMATION_TOPIC
 from product_consumer_service.setting import BOOTSTRAP_SERVER
 from product_consumer_service.utils.logger import logger
 
