@@ -1,4 +1,4 @@
-from inventory_consumer_service.proto import inventory_pb2, operation_pb2
+from inventory_consumer_service.proto import inventory_pb2, operation_pb2, order_pb2
 from inventory_consumer_service.consumers.consumer import create_consumer
 from inventory_consumer_service.models import Inventory
 from inventory_consumer_service.setting import KAFKA_INVENTORY_UPDATE_CONSUMER_GROUP_ID, KAFKA_INVENTORY_UPDATE_TOPIC
@@ -16,7 +16,7 @@ async def consume_inventory_update():
     try:
         async for msg in consumer:
             try:
-                order = inventory_pb2.Order()
+                order = order_pb2.Order()
                 order.ParseFromString(msg.value)
                 logger.info(f"Received Inventory Update Message: {order}")
 
