@@ -44,7 +44,6 @@ async def get_orders():
     with Session(engine) as session:
         orders = session.exec(select(Order)).all()
         return orders
-    
 
 @app.get("/orders/{order_id}", response_model=Order)
 async def get_order(order_id: str):
