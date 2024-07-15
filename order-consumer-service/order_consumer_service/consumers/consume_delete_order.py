@@ -45,6 +45,7 @@ async def consume_delete_order():
 
                             # Delete the related order products first
                             session.exec(select(OrderProduct).where(OrderProduct.order_id == existing_order.order_id)).delete()
+                            session.commit()
 
                             # Delete the order from order_db
                             session.delete(existing_order)
