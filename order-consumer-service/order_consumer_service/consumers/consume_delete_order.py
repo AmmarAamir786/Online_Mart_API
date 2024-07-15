@@ -1,3 +1,4 @@
+from sqlalchemy import delete
 from sqlmodel import select
 
 from order_consumer_service.consumers.consumer import create_consumer
@@ -44,7 +45,7 @@ async def consume_delete_order():
                             logger.info(f"Sent inventory update message for order {existing_order.order_id} to {KAFKA_INVENTORY_UPDATE_TOPIC}")
 
                             # Delete the related order products first
-                            session.exec(select(OrderProduct).where(OrderProduct.order_id == existing_order.order_id)).delete()
+                            session.exec(delete(OrderProduct).where(OrderProduct.order_id == existing_order.order_id))
                             session.commit()
 
                             # Delete the order from order_db
