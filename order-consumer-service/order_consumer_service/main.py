@@ -46,7 +46,7 @@ async def get_orders(session = Depends(get_session)):
 
     result = []
     for order in orders:
-        products_query = await session.exec(select(OrderProduct).where(OrderProduct.order_id == order.order_id))
+        products_query = session.exec(select(OrderProduct).where(OrderProduct.order_id == order.order_id))
         products = products_query.all()
 
         order_dict = {
@@ -64,7 +64,7 @@ async def get_order(order_id: str, session = Depends(get_session)):
     if not order:
         return {"error": "Order not found"}
 
-    products_query = await session.exec(select(OrderProduct).where(OrderProduct.order_id == order_id))
+    products_query = session.exec(select(OrderProduct).where(OrderProduct.order_id == order_id))
     products = products_query.all()
 
     order_dict = {
