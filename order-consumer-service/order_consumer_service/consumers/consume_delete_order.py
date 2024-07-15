@@ -2,7 +2,7 @@ from sqlmodel import select
 
 from order_consumer_service.consumers.consumer import create_consumer
 from order_consumer_service.setting import KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_ORDER_CONSUMER_GROUP_ID, KAFKA_ORDER_TOPIC
-from order_consumer_service.proto import order_pb2
+from order_consumer_service.proto import order_pb2, operation_pb2
 from order_consumer_service.models import Order
 from order_consumer_service.db import get_session
 
@@ -23,7 +23,7 @@ async def consume_delete_order():
                 order.ParseFromString(msg.value)
                 logger.info(f"Received Order Message: {order}")
 
-                if order.operation == order_pb2.OperationType.DELETE:
+                if order.operation == operation_pb2.OperationType.DELETE:
                     with next(get_session()) as session:
                         existing_order = session.exec(select(Order).where(Order.order_id == order.order_id)).first()
                         
@@ -31,7 +31,7 @@ async def consume_delete_order():
                             # Prepare inventory update message
                             inventory_update_order = order_pb2.Order()
                             inventory_update_order.order_id = existing_order.order_id
-                            inventory_update_order.operation = order_pb2.OperationType.DELETE
+                            inventory_update_order.operation = operation_pb2.OperationType.DELETE
                             
                             for product in existing_order.products:
                                 order_product_proto = order_pb2.OrderProduct()

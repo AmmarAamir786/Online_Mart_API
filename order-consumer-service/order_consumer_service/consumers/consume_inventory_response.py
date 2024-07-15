@@ -2,7 +2,7 @@ from sqlmodel import select
 
 from order_consumer_service.consumers.consumer import create_consumer
 from order_consumer_service.setting import KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC, KAFKA_ORDER_CONFIRMATION_CONSUMER_GROUP_ID
-from order_consumer_service.proto import order_pb2
+from order_consumer_service.proto import order_pb2, operation_pb2
 from order_consumer_service.models import Order, OrderProduct
 from order_consumer_service.db import get_session
 
@@ -24,7 +24,7 @@ async def consume_inventory_response():
                 logger.info(f"Received Order Message: {order}")
 
                 with next(get_session()) as session:
-                    if order.operation == order_pb2.OperationType.CREATE:
+                    if order.operation == operation_pb2.OperationType.CREATE:
                         existing_order = session.exec(select(Order).where(Order.order_id == order.order_id)).first()
                         
                         if existing_order:
@@ -42,7 +42,7 @@ async def consume_inventory_response():
                             await produce_to_inventory_update_topic(serialized_order)
                             logger.info(f"Sent order {order.order_id} to {KAFKA_INVENTORY_UPDATE_TOPIC}")
 
-                    elif order.operation == order_pb2.OperationType.UPDATE:
+                    elif order.operation == operation_pb2.OperationType.UPDATE:
                         existing_order = session.exec(select(Order).where(Order.order_id == order.order_id)).first()
                         
                         if not existing_order:
@@ -51,7 +51,7 @@ async def consume_inventory_response():
                             # Prepare inventory update message with quantity adjustments
                             inventory_update_order = order_pb2.Order()
                             inventory_update_order.order_id = order.order_id
-                            inventory_update_order.operation = order_pb2.OperationType.UPDATE
+                            inventory_update_order.operation = operation_pb2.OperationType.UPDATE
 
                             # Track products for quantity adjustment
                             product_quantity_map = {product.product_id: product.quantity for product in order.products}

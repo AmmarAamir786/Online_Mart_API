@@ -1,4 +1,4 @@
-from inventory_consumer_service.proto import inventory_pb2
+from inventory_consumer_service.proto import inventory_pb2, operation_pb2
 from inventory_consumer_service.consumers.consumer import create_consumer
 from inventory_consumer_service.models import Inventory
 from inventory_consumer_service.setting import KAFKA_INVENTORY_CONSUMER_GROUP_ID, KAFKA_INVENTORY_UPDATE_TOPIC
@@ -21,7 +21,7 @@ async def consume_inventory_update():
                 logger.info(f"Received Inventory Update Message: {order}")
 
                 with next(get_session()) as session:
-                    if order.operation == inventory_pb2.OperationType.CREATE:
+                    if order.operation == operation_pb2.OperationType.CREATE:
                         for order_product in order.products:
                             product_id = order_product.product_id
                             required_quantity = order_product.quantity
@@ -40,7 +40,7 @@ async def consume_inventory_update():
 
                         session.commit()
 
-                    elif order.operation == inventory_pb2.OperationType.UPDATE:
+                    elif order.operation == operation_pb2.OperationType.UPDATE:
                         for order_product in order.products:
                             product_id = order_product.product_id
                             quantity_change = order_product.quantity
@@ -56,7 +56,7 @@ async def consume_inventory_update():
 
                         session.commit()
 
-                    elif order.operation == inventory_pb2.OperationType.DELETE:
+                    elif order.operation == operation_pb2.OperationType.DELETE:
                         for order_product in order.products:
                             product_id = order_product.product_id
                             added_quantity = order_product.quantity
