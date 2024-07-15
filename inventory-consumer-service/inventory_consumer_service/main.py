@@ -51,10 +51,10 @@ async def get_inventory():
         return inventory
 
 
-@app.get("/inventory/{inventory_id}", response_model=Inventory)
-async def get_product(inventory_id: int):
+@app.get("/inventory/{product_id}", response_model=Inventory)
+async def get_product(product_id: int):
     with Session(engine) as session:
-        inventory = session.exec(select(Inventory).where(Inventory.id == inventory_id)).first()
+        inventory = session.exec(select(Inventory).where(Inventory.product_id == product_id)).first()
         if not inventory:
             raise HTTPException(status_code=404, detail="Inventory not found")
         return inventory
