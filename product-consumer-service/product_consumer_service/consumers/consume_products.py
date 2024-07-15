@@ -27,17 +27,21 @@ async def consume_products():
 
                 with Session(engine) as session:
                     if product.operation == operation_pb2.OperationType.CREATE:
-                        new_product = Product(
-                            name=product.name,
-                            product_id=product.product_id,
-                            description=product.description,
-                            price=product.price,
-                            category=product.category
-                        )
-                        session.add(new_product)
-                        session.commit()
-                        session.refresh(new_product)
-                        logger.info(f'Product added to db: {new_product}')
+                        existing_product = session.exec(select(Product).where(Product.product_id == product.product_id)).first()
+                        if existing_product:
+                            logger.warning(f'Product with ID {product.product_id} already exists')
+                        else:
+                            new_product = Product(
+                                name=product.name,
+                                product_id=product.product_id,
+                                description=product.description,
+                                price=product.price,
+                                category=product.category
+                            )
+                            session.add(new_product)
+                            session.commit()
+                            session.refresh(new_product)
+                            logger.info(f'Product added to db: {new_product}')
                     
                     elif product.operation == operation_pb2.OperationType.UPDATE:
                         existing_product = session.exec(select(Product).where(Product.id == product.id)).first()
