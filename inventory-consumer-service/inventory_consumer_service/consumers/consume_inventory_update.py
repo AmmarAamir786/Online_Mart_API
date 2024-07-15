@@ -1,14 +1,14 @@
 from inventory_consumer_service.proto import inventory_pb2, operation_pb2
 from inventory_consumer_service.consumers.consumer import create_consumer
 from inventory_consumer_service.models import Inventory
-from inventory_consumer_service.setting import KAFKA_INVENTORY_CONSUMER_GROUP_ID, KAFKA_INVENTORY_UPDATE_TOPIC
+from inventory_consumer_service.setting import KAFKA_INVENTORY_UPDATE_CONSUMER_GROUP_ID, KAFKA_INVENTORY_UPDATE_TOPIC
 from sqlmodel import select
 from inventory_consumer_service.db import get_session
 from inventory_consumer_service.utils.logger import logger
 
 
 async def consume_inventory_update():
-    consumer = await create_consumer(KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_INVENTORY_CONSUMER_GROUP_ID)
+    consumer = await create_consumer(KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_INVENTORY_UPDATE_CONSUMER_GROUP_ID)
     if not consumer:
         logger.error("Failed to create kafka inventory update consumer")
         return
