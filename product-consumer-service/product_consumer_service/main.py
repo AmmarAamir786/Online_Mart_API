@@ -52,7 +52,7 @@ async def get_products():
 @app.get("/products/{product_id}", response_model=Product)
 async def get_product(product_id: int):
     with Session(engine) as session:
-        product = session.exec(select(Product).where(Product.id == product_id)).first()
+        product = session.exec(select(Product).where(Product.product_id == product_id)).first()
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
         return product
