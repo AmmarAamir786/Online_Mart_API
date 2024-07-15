@@ -42,13 +42,12 @@ async def create_inventory(
 
 
 @app.put('/inventory/')
-async def edit_inventory(inventory: InventoryUpdate, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
+async def edit_inventory(inventory: InventoryUpdate, product_id: int, producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]):
 
     logger.info(f"Received product data for update: {inventory}")
 
     inventory_proto = inventory_pb2.Inventory()
-    inventory_proto.id = inventory.id
-    inventory_proto.product_id = inventory.product_id
+    inventory_proto.product_id = product_id
     inventory_proto.stock_level = inventory.stock_level
     inventory_proto.operation = operation_pb2.OperationType.UPDATE
         

@@ -24,9 +24,8 @@ async def consume_inventory():
                 with Session(engine) as session:
                     
                     if inventory.operation == operation_pb2.OperationType.UPDATE:
-                        existing_inventory = session.exec(select(Inventory).where(Inventory.id == inventory.id)).first()
+                        existing_inventory = session.exec(select(Inventory).where(Inventory.product_id == inventory.product_id)).first()
                         if existing_inventory:
-                            existing_inventory.product_id = inventory.product_id
                             existing_inventory.stock_level = inventory.stock_level
                             session.add(existing_inventory)
                             session.commit()
