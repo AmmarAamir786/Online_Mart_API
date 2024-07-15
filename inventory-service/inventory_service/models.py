@@ -5,5 +5,5 @@ class Inventory(BaseModel):
     product_id: int
     stock_level: int
 
-class InventoryUpdate(Inventory):
+class InventoryUpdate(BaseModel):
     stock_level: int
