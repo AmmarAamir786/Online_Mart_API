@@ -1,18 +1,20 @@
 import asyncio
-from contextlib import asynccontextmanager
-import logging
-from typing import List
 
+from contextlib import asynccontextmanager
+from typing import List
 from fastapi import FastAPI, HTTPException
-from product_consumer_service.consumers.consume_inventory import consume_inventory, create_topic
-from product_consumer_service.consumers.consume_products import consume_products
-from product_consumer_service.models import Product
 from sqlmodel import Session, select
+
+from product_consumer_service.consumers.consume_inventory import consume_inventory
+from product_consumer_service.consumers.consume_products import consume_products
+
+from product_consumer_service.models import Product
+from product_consumer_service.setting import KAFKA_PRODUCT_CONFIRMATION_TOPIC
 from product_consumer_service.db import create_tables, engine, get_session
 
+from product_consumer_service.utils.topic import create_topic
+from product_consumer_service.utils.logger import logger
 
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -22,7 +24,7 @@ async def lifespan(app: FastAPI):
     create_tables()
     logger.info("Tables Created")
 
-    await create_topic()
+    await create_topic(KAFKA_PRODUCT_CONFIRMATION_TOPIC)
 
     loop = asyncio.get_event_loop()
     tasks = [

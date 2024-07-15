@@ -3,10 +3,11 @@ from typing import Annotated, AsyncGenerator
 from fastapi import Depends, FastAPI
 
 from product_service.proto import product_pb2, operation_pb2
-
 from product_service.models import Product, ProductUpdate
 from product_service.setting import KAFKA_PRODUCT_TOPIC
+
 from aiokafka import AIOKafkaProducer
+
 from product_service.utils.producer import kafka_producer
 from product_service.utils.topic import create_topic
 from product_service.utils.logger import logger

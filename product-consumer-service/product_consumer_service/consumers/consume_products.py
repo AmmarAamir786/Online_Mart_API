@@ -1,15 +1,12 @@
-import logging
-
 from product_consumer_service.consumers.consumer import create_consumer
+
 from product_consumer_service.models import Product
 from product_consumer_service.db import engine
 from product_consumer_service.proto import product_pb2, operation_pb2
 from product_consumer_service.setting import KAFKA_PRODUCT_CONSUMER_GROUP_ID, KAFKA_PRODUCT_TOPIC
+from product_consumer_service.utils.logger import logger
+
 from sqlmodel import Session, select
-
-
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 async def consume_products():

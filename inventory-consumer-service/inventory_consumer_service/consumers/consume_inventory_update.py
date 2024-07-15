@@ -1,16 +1,10 @@
-import logging
 from inventory_consumer_service.proto import inventory_pb2
 from inventory_consumer_service.consumers.consumer import create_consumer
 from inventory_consumer_service.models import Inventory
-from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_INVENTORY_CONSUMER_GROUP_ID, KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_INVENTORY_VALIDATION_GROUP_ID, KAFKA_ORDER_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC
-from sqlmodel import Session, select
-from inventory_consumer_service.proto import  operation_pb2, order_pb2
-from inventory_consumer_service.db import engine, get_session
-from aiokafka.errors import KafkaConnectionError
-from aiokafka.admin import AIOKafkaAdminClient, NewTopic
-
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
+from inventory_consumer_service.setting import KAFKA_INVENTORY_CONSUMER_GROUP_ID, KAFKA_INVENTORY_UPDATE_TOPIC
+from sqlmodel import select
+from inventory_consumer_service.db import get_session
+from inventory_consumer_service.utils.logger import logger
 
 
 async def consume_inventory_update():

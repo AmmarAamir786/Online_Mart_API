@@ -2,8 +2,8 @@ import asyncio
 from aiokafka.errors import KafkaConnectionError
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
 
-from order_consumer_service.setting import BOOTSTRAP_SERVER
-from order_consumer_service.utils.logger import logger
+from inventory_consumer_service.setting import BOOTSTRAP_SERVER
+from inventory_consumer_service.utils.logger import logger
 
 
 MAX_RETRIES = 5

@@ -1,4 +1,4 @@
-import logging
+from sqlmodel import Session
 
 from inventory_consumer_service.consumers.consumer import create_consumer
 from inventory_consumer_service.setting import KAFKA_PRODUCT_CONFIRMATION_TOPIC, KAFKA_INVENTORY_CONFIRMATION__CONSUMER_GROUP_ID
@@ -6,10 +6,7 @@ from inventory_consumer_service.proto import inventory_pb2, operation_pb2
 from inventory_consumer_service.db import engine
 from inventory_consumer_service.models import Inventory
 from inventory_consumer_service.db import engine
-from sqlmodel import Session
-
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
+from inventory_consumer_service.utils.logger import logger
 
 
 async def consume_product_confirmation():

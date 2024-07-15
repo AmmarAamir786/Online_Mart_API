@@ -1,19 +1,14 @@
-from aiokafka import AIOKafkaProducer
-from order_consumer_service.db import get_session
 from sqlmodel import select
+
 from order_consumer_service.consumers.consumer import create_consumer
-from order_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC, KAFKA_ORDER_CONFIRMATION_CONSUMER_GROUP_ID
-from order_consumer_service.utils.logger import logger
+from order_consumer_service.setting import KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC, KAFKA_ORDER_CONFIRMATION_CONSUMER_GROUP_ID
 from order_consumer_service.proto import order_pb2
 from order_consumer_service.models import Order, OrderProduct
+from order_consumer_service.db import get_session
 
-async def produce_to_inventory_update_topic(message):
-    producer = AIOKafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER)
-    await producer.start()
-    try:
-        await producer.send_and_wait(KAFKA_INVENTORY_UPDATE_TOPIC, message)
-    finally:
-        await producer.stop()
+from order_consumer_service.utils.producer import produce_to_inventory_update_topic
+from order_consumer_service.utils.logger import logger
+
 
 async def consume_inventory_response():
     consumer = await create_consumer(KAFKA_INVENTORY_RESPONSE_TOPIC, KAFKA_ORDER_CONFIRMATION_CONSUMER_GROUP_ID)

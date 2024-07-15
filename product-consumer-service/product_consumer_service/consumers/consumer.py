@@ -1,11 +1,7 @@
 import asyncio
 from aiokafka import AIOKafkaConsumer
 from product_consumer_service.setting import BOOTSTRAP_SERVER
-
-import logging
-
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
+from product_consumer_service.utils.logger import logger
 
 
 MAX_RETRIES = 5

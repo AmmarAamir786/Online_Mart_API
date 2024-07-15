@@ -1,9 +1,8 @@
 import asyncio
 from aiokafka.errors import KafkaConnectionError
 from aiokafka.admin import AIOKafkaAdminClient, NewTopic
-
-from order_consumer_service.setting import BOOTSTRAP_SERVER
-from order_consumer_service.utils.logger import logger
+from inventory_service.setting import BOOTSTRAP_SERVER
+from inventory_service.utils.logger import logger
 
 
 MAX_RETRIES = 5
@@ -36,4 +35,3 @@ async def create_topic(topic:str):
             await asyncio.sleep(RETRY_INTERVAL)
         
     raise Exception("Failed to connect to kafka broker after several retries")
-

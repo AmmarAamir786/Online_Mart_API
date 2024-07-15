@@ -1,58 +1,13 @@
-import asyncio
-import logging
+from sqlmodel import select
 
-from aiokafka import AIOKafkaProducer
 from inventory_consumer_service.consumers.consumer import create_consumer
 from inventory_consumer_service.models import Inventory
-from inventory_consumer_service.setting import BOOTSTRAP_SERVER, KAFKA_INVENTORY_VALIDATION_GROUP_ID, KAFKA_ORDER_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC
-from sqlmodel import Session, select
+from inventory_consumer_service.setting import KAFKA_INVENTORY_VALIDATION_GROUP_ID, KAFKA_ORDER_TOPIC, KAFKA_INVENTORY_RESPONSE_TOPIC
 from inventory_consumer_service.proto import  operation_pb2, order_pb2
-from inventory_consumer_service.db import engine, get_session
-from aiokafka.errors import KafkaConnectionError
-from aiokafka.admin import AIOKafkaAdminClient, NewTopic
+from inventory_consumer_service.db import get_session
 
-logging.basicConfig(level= logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-MAX_RETRIES = 5
-RETRY_INTERVAL = 10
-
-async def create_topic():
-    admin_client = AIOKafkaAdminClient(bootstrap_servers=BOOTSTRAP_SERVER)
-
-    retries = 0
-
-    while retries < MAX_RETRIES:
-        try:
-            await admin_client.start()
-            topic_list = [NewTopic(name=KAFKA_INVENTORY_RESPONSE_TOPIC,
-                                num_partitions=2, 
-                                replication_factor=1)]
-            try:
-                await admin_client.create_topics(new_topics=topic_list, validate_only=False)
-                print(f"Topic '{KAFKA_INVENTORY_RESPONSE_TOPIC,}' created successfully")
-            except Exception as e:
-                print(f"Failed to create topic '{KAFKA_INVENTORY_RESPONSE_TOPIC}': {e}")
-            finally:
-                await admin_client.close()
-            return
-        
-        except KafkaConnectionError:
-            retries += 1 
-            print(f"Kafka connection failed. Retrying {retries}/{MAX_RETRIES}...")
-            await asyncio.sleep(RETRY_INTERVAL)
-        
-    raise Exception("Failed to connect to kafka broker after several retries")
-
-
-async def produce_to_confirmation_topic(message):
-    producer = AIOKafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER)
-    await producer.start()
-    try:
-        await producer.send_and_wait(KAFKA_INVENTORY_RESPONSE_TOPIC, message)
-    finally:
-        await producer.stop()
+from inventory_consumer_service.utils.logger import logger
+from inventory_consumer_service.utils.producer import produce_to_confirmation_topic
 
 
 async def consume_validation():
