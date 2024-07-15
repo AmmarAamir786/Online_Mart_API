@@ -3,7 +3,7 @@ from sqlmodel import select
 from order_consumer_service.consumers.consumer import create_consumer
 from order_consumer_service.setting import KAFKA_INVENTORY_UPDATE_TOPIC, KAFKA_ORDER_CONSUMER_GROUP_ID, KAFKA_ORDER_TOPIC
 from order_consumer_service.proto import order_pb2, operation_pb2
-from order_consumer_service.models import Order
+from order_consumer_service.models import Order, OrderProduct
 from order_consumer_service.db import get_session
 
 from order_consumer_service.utils.logger import logger
@@ -42,6 +42,9 @@ async def consume_delete_order():
                             serialized_inventory_update_order = inventory_update_order.SerializeToString()
                             await produce_to_inventory_update_topic(serialized_inventory_update_order)
                             logger.info(f"Sent inventory update message for order {existing_order.order_id} to {KAFKA_INVENTORY_UPDATE_TOPIC}")
+
+                            # Delete the related order products first
+                            session.exec(select(OrderProduct).where(OrderProduct.order_id == existing_order.order_id)).delete()
 
                             # Delete the order from order_db
                             session.delete(existing_order)
