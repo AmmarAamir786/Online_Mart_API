@@ -6,4 +6,4 @@ class Inventory(BaseModel):
     stock_level: int
 
 class InventoryUpdate(Inventory):
-    id: int
+    stock_level: int
