@@ -1,6 +1,6 @@
 from aiokafka import AIOKafkaProducer
 from product_consumer_service.setting import KAFKA_PRODUCT_CONFIRMATION_TOPIC
-from product_service.setting import BOOTSTRAP_SERVER
+from product_consumer_service.setting import BOOTSTRAP_SERVER
 
 
 async def produce_to_confirmation_topic(message):
