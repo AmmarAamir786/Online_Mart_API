@@ -41,7 +41,7 @@ app = FastAPI(lifespan=lifespan, title="Order Consumer Service", version='1.0.0'
 
 @app.get("/orders/")
 async def get_orders(session = Depends(get_session)):
-    orders_query = await session.exec(select(Order))
+    orders_query = session.exec(select(Order))
     orders = orders_query.all()
 
     result = []
@@ -59,7 +59,7 @@ async def get_orders(session = Depends(get_session)):
 
 @app.get("/orders/{order_id}")
 async def get_order(order_id: str, session = Depends(get_session)):
-    query = await session.exec(select(Order).where(Order.order_id == order_id))
+    query = session.exec(select(Order).where(Order.order_id == order_id))
     order = query.first()
     if not order:
         return {"error": "Order not found"}
