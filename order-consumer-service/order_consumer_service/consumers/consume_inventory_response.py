@@ -53,37 +53,27 @@ async def consume_inventory_response():
                             inventory_update_order.order_id = order.order_id
                             inventory_update_order.operation = operation_pb2.OperationType.UPDATE
 
-                            # Track products for quantity adjustment
-                            product_quantity_map = {product.product_id: product.quantity for product in order.products}
-
+                            # Revert quantities of existing products in the order
                             for existing_product in existing_order.products:
-                                if existing_product.product_id in product_quantity_map:
-                                    new_quantity = product_quantity_map[existing_product.product_id]
-                                    quantity_diff = new_quantity - existing_product.quantity
-                                    inventory_update_order.products.append(order_pb2.OrderProduct(
-                                        product_id=existing_product.product_id,
-                                        quantity=quantity_diff
-                                    ))
-                                    # Update existing product quantity
-                                    existing_product.quantity = new_quantity
-                                    del product_quantity_map[existing_product.product_id]
-                                else:
-                                    # Product removed in the new order
-                                    inventory_update_order.products.append(order_pb2.OrderProduct(
-                                        product_id=existing_product.product_id,
-                                        quantity=-existing_product.quantity
-                                    ))
-                                    session.delete(existing_product)
-
-                            # Add any new products in the updated order
-                            for product_id, quantity in product_quantity_map.items():
                                 inventory_update_order.products.append(order_pb2.OrderProduct(
-                                    product_id=product_id,
-                                    quantity=quantity
+                                    product_id=existing_product.product_id,
+                                    quantity=-existing_product.quantity
                                 ))
-                                new_order_product = OrderProduct(product_id=product_id, quantity=quantity, order_id=order.order_id)
-                                session.add(new_order_product)
 
+                            # Update existing order with new quantities and prepare the new order message
+                            new_order_products = []
+                            for product in order.products:
+                                inventory_update_order.products.append(order_pb2.OrderProduct(
+                                    product_id=product.product_id,
+                                    quantity=product.quantity
+                                ))
+                                new_order_products.append(OrderProduct(
+                                    product_id=product.product_id,
+                                    quantity=product.quantity,
+                                    order_id=order.order_id
+                                ))
+
+                            existing_order.products = new_order_products
                             session.commit()
                             logger.info(f"Order with ID {order.order_id} updated in order_db")
 
