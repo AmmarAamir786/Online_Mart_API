@@ -42,36 +42,38 @@ async def consume_inventory_response():
                             await produce_to_inventory_update_topic(serialized_order)
                             logger.info(f"Sent order {order.order_id} to {KAFKA_INVENTORY_UPDATE_TOPIC}")
 
-                    elif order.operation == operation_pb2.OperationType.UPDATE:
+                    if order.operation == operation_pb2.OperationType.UPDATE:
                         existing_order = session.exec(select(Order).where(Order.order_id == order.order_id)).first()
                         
                         if not existing_order:
                             logger.error(f"Order with ID {order.order_id} does not exist. Order update failed.")
                         else:
-                            # Prepare inventory update message with quantity adjustments
                             inventory_update_order = order_pb2.Order()
                             inventory_update_order.order_id = order.order_id
                             inventory_update_order.operation = operation_pb2.OperationType.UPDATE
 
-                            # Track products for quantity adjustment
                             product_quantity_map = {product.product_id: product.quantity for product in order.products}
-
+                            
                             for existing_product in existing_order.products:
                                 if existing_product.product_id in product_quantity_map:
                                     new_quantity = product_quantity_map[existing_product.product_id]
                                     quantity_diff = new_quantity - existing_product.quantity
+                                    
+                                    # Update the inventory
                                     inventory_update_order.products.append(order_pb2.OrderProduct(
                                         product_id=existing_product.product_id,
-                                        quantity=quantity_diff
+                                        quantity=-quantity_diff  # Deduct the difference
                                     ))
+                                    
                                     # Update existing product quantity
                                     existing_product.quantity = new_quantity
                                     del product_quantity_map[existing_product.product_id]
                                 else:
                                     # Product removed in the new order
+                                    # Revert to initial stock level (100)
                                     inventory_update_order.products.append(order_pb2.OrderProduct(
                                         product_id=existing_product.product_id,
-                                        quantity=-existing_product.quantity
+                                        quantity=existing_product.quantity  # Revert back to initial
                                     ))
                                     session.delete(existing_product)
 
@@ -90,6 +92,7 @@ async def consume_inventory_response():
                             serialized_inventory_update_order = inventory_update_order.SerializeToString()
                             await produce_to_inventory_update_topic(serialized_inventory_update_order)
                             logger.info(f"Sent inventory update message for order {order.order_id} to {KAFKA_INVENTORY_UPDATE_TOPIC}")
+
 
             except Exception as e:
                 logger.error(f"Error processing order message: {e}")
