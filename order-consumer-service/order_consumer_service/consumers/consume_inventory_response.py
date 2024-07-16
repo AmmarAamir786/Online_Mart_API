@@ -48,6 +48,8 @@ async def consume_inventory_response():
                         if not existing_order:
                             logger.error(f"Order with ID {order.order_id} does not exist. Order update failed.")
                         else:
+                            logger.info(f"Processing update for Order ID {order.order_id}")
+
                             # Prepare inventory update message with quantity adjustments
                             inventory_update_order = order_pb2.Order()
                             inventory_update_order.order_id = order.order_id
@@ -55,6 +57,7 @@ async def consume_inventory_response():
 
                             # Revert quantities of existing products in the order
                             for existing_product in existing_order.products:
+                                logger.info(f"Reverting quantity for product ID {existing_product.product_id}, quantity: {-existing_product.quantity}")
                                 inventory_update_order.products.append(order_pb2.OrderProduct(
                                     product_id=existing_product.product_id,
                                     quantity=-existing_product.quantity
@@ -63,6 +66,7 @@ async def consume_inventory_response():
                             # Update existing order with new quantities and prepare the new order message
                             new_order_products = []
                             for product in order.products:
+                                logger.info(f"Updating quantity for product ID {product.product_id}, quantity: {product.quantity}")
                                 inventory_update_order.products.append(order_pb2.OrderProduct(
                                     product_id=product.product_id,
                                     quantity=product.quantity
