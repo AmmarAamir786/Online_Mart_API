@@ -42,7 +42,7 @@ async def consume_inventory_response():
                             await produce_to_inventory_update_topic(serialized_order)
                             logger.info(f"Sent order {order.order_id} to {KAFKA_INVENTORY_UPDATE_TOPIC}")
 
-                    if order.operation == operation_pb2.OperationType.UPDATE:
+                    elif order.operation == operation_pb2.OperationType.UPDATE:
                         existing_order = session.exec(select(Order).where(Order.order_id == order.order_id)).first()
                         
                         if not existing_order:
@@ -81,7 +81,7 @@ async def consume_inventory_response():
                             for product_id, quantity in product_quantity_map.items():
                                 inventory_update_order.products.append(order_pb2.OrderProduct(
                                     product_id=product_id,
-                                    quantity=quantity
+                                    quantity=-quantity  # Deduct this quantity
                                 ))
                                 new_order_product = OrderProduct(product_id=product_id, quantity=quantity, order_id=order.order_id)
                                 session.add(new_order_product)
@@ -92,7 +92,6 @@ async def consume_inventory_response():
                             serialized_inventory_update_order = inventory_update_order.SerializeToString()
                             await produce_to_inventory_update_topic(serialized_inventory_update_order)
                             logger.info(f"Sent inventory update message for order {order.order_id} to {KAFKA_INVENTORY_UPDATE_TOPIC}")
-
 
             except Exception as e:
                 logger.error(f"Error processing order message: {e}")
