@@ -1,6 +1,13 @@
 version: '3.8'
 name: ammar-mart
 
+x-kong-config: &kong-env
+  KONG_DATABASE: ${KONG_DATABASE:-postgres}
+  KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+  KONG_PG_HOST: kong_db
+  KONG_PG_USER: ${KONG_PG_USER:-kong}
+  KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+
 services:
 
   product-service:
@@ -14,7 +21,7 @@ services:
       - broker
       - schema-registry
     ports:
-      - "8000:8000"  # Expose container port 8000 to host port 8000 
+      - "80011:8000"  # Expose container port 8000 to host port 8000 
 
   product-consumer-service:
     build:
@@ -27,7 +34,7 @@ services:
       - broker
       - schema-registry
     ports:
-      - "8001:8000"  # Expose container port 8000 to host port 8000 
+      - "8012:8000"  # Expose container port 8000 to host port 8000 
 
   product_db:
     image: postgres:latest  # Use the official PostgreSQL image
@@ -43,80 +50,83 @@ services:
         - product_db:/var/lib/postgresql/data
         
 
-  # order-service:
-  #   build:
-  #     context: ./order-service
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./order-service:/app  # Sync local development directory with the container
-  #   depends_on:
-  #     - kafka-ui
-  #     - broker
-  #   ports:
-  #     - "8002:8000"  # Expose container port 8000 to host port 8000 
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./order-service:/app  # Sync local development directory with the container
+    depends_on:
+      - kafka-ui
+      - broker
+    ports:
+      - "8013:8000"  # Expose container port 8000 to host port 8000 
 
-  # order-consumer-service:
-  #   build:
-  #     context: ./order-consumer-service
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./order-consumer-service:/app  # Sync local development directory with the container
-  #   depends_on:
-  #     - order_db
-  #     - broker
-  #   ports:
-  #     - "8003:8000"  # Expose container port 8000 to host port 8000 
+  order-consumer-service:
+    build:
+      context: ./order-consumer-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./order-consumer-service:/app  # Sync local development directory with the container
+    depends_on:
+      - order_db
+      - broker
+      - schema-registry
+    ports:
+      - "8014:8000"  # Expose container port 8000 to host port 8000 
 
-  # order_db:
-  #   image: postgres:latest  # Use the official PostgreSQL image
-  #   restart: always
-  #   container_name: Order_db_Cont
-  #   environment:
-  #       - POSTGRES_USER=ammar
-  #       - POSTGRES_PASSWORD=my_password
-  #       - POSTGRES_DB=order_db
-  #   ports:
-  #       - '5434:5432'
-  #   volumes:
-  #       - order_db:/var/lib/postgresql/data
+  order_db:
+    image: postgres:latest  # Use the official PostgreSQL image
+    restart: always
+    container_name: Order_db_Cont
+    environment:
+        - POSTGRES_USER=ammar
+        - POSTGRES_PASSWORD=my_password
+        - POSTGRES_DB=order_db
+    ports:
+        - '5434:5432'
+    volumes:
+        - order_db:/var/lib/postgresql/data
 
 
-  # inventory-service:
-  #   build:
-  #     context: ./inventory-service
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./inventory-service:/app  # Sync local development directory with the container
-  #   depends_on:
-  #     - kafka-ui
-  #     - broker
-  #   ports:
-  #     - "8004:8000"  # Expose container port 8000 to host port 8000 
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./inventory-service:/app  # Sync local development directory with the container
+    depends_on:
+      - kafka-ui
+      - broker
+      - schema-registry
+    ports:
+      - "8015:8000"  # Expose container port 8000 to host port 8000 
 
-  # inventory-consumer-service:
-  #   build:
-  #     context: ./inventory-consumer-service
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./inventory-consumer-service:/app  # Sync local development directory with the container
-  #   depends_on:
-  #     - inventory_db
-  #     - broker
-  #   ports:
-  #     - "8005:8000"  # Expose container port 8000 to host port 8000 
+  inventory-consumer-service:
+    build:
+      context: ./inventory-consumer-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./inventory-consumer-service:/app  # Sync local development directory with the container
+    depends_on:
+      - inventory_db
+      - broker
+      - schema-registry
+    ports:
+      - "8016:8000"  # Expose container port 8000 to host port 8000 
 
-  # inventory_db:
-  #   image: postgres:latest  # Use the official PostgreSQL image
-  #   restart: always
-  #   container_name: Inventory_db_Cont
-  #   environment:
-  #       - POSTGRES_USER=ammar
-  #       - POSTGRES_PASSWORD=my_password
-  #       - POSTGRES_DB=inventory_db
-  #   ports:
-  #       - '5435:5432'
-  #   volumes:
-  #       - inventory_db:/var/lib/postgresql/data
+  inventory_db:
+    image: postgres:latest  # Use the official PostgreSQL image
+    restart: always
+    container_name: Inventory_db_Cont
+    environment:
+        - POSTGRES_USER=ammar
+        - POSTGRES_PASSWORD=my_password
+        - POSTGRES_DB=inventory_db
+    ports:
+        - '5435:5432'
+    volumes:
+        - inventory_db:/var/lib/postgresql/data
 
 
   broker:
@@ -165,14 +175,128 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
 
+  kong-migrations:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations bootstrap
+    profiles: ["database"]
+    depends_on:
+      - kong_db
+    environment:
+      <<: *kong-env
+    secrets:
+      - kong_postgres_password
+    restart: on-failure
+
+  # Kong Database configuration modification service
+  kong-migrations-up:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations up && kong migrations finish
+    profiles: ["database"]
+    depends_on:
+      - kong_db
+    environment:
+      <<: *kong-env
+    secrets:
+      - kong_postgres_password
+    restart: on-failure
+
+  # Kong Service
+  kong:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    user: "${KONG_USER:-kong}"
+    environment:
+      <<: *kong-env
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: "${KONG_PROXY_LISTEN:-0.0.0.0:8000}"
+      KONG_ADMIN_LISTEN: "${KONG_ADMIN_LISTEN:-0.0.0.0:8001}"
+      KONG_ADMIN_GUI_LISTEN: "${KONG_ADMIN_GUI_LISTEN:-0.0.0.0:8002}"
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
+      # KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+    secrets:
+      - kong_postgres_password
+    ports:
+      # The following two environment variables default to an insecure value (0.0.0.0)
+      # according to the CIS Security test.
+      - "${KONG_INBOUND_PROXY_LISTEN:-0.0.0.0}:8000:8000/tcp"
+      - "${KONG_INBOUND_SSL_PROXY_LISTEN:-0.0.0.0}:8443:8443/tcp"
+      # Making them mandatory but undefined, like so would be backwards-breaking:
+      # - "${KONG_INBOUND_PROXY_LISTEN?Missing inbound proxy host}:8000:8000/tcp"
+      # - "${KONG_INBOUND_SSL_PROXY_LISTEN?Missing inbound proxy ssl host}:8443:8443/tcp"
+      # Alternative is deactivating check 5.13 in the security bench, if we consider Kong's own config to be enough security here
+
+      - "127.0.0.1:8001:8001/tcp"
+      - "127.0.0.1:8444:8444/tcp"
+      - "127.0.0.1:8002:8002/tcp"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure:5
+    read_only: true
+    volumes:
+      - kong_prefix_vol:${KONG_PREFIX:-/var/run/kong}
+      - kong_tmp_vol:/tmp
+      # - ./config:/opt/kong
+    security_opt:
+      - no-new-privileges
+
+  # Kong Database Service
+  kong_db:
+    image: postgres:9.5
+    profiles: ["database"]
+    environment:
+      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
+      POSTGRES_USER: ${KONG_PG_USER:-kong}
+      POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-d",
+          "${KONG_PG_DATABASE:-kong}",
+          "-U",
+          "${KONG_PG_USER:-kong}",
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    stdin_open: true
+    tty: true
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+
+
 volumes:
   product_db:
     driver: local
-  # order_db:
-  #   driver: local
-  # inventory_db:
-  #   driver: local
+  order_db:
+    driver: local
+  inventory_db:
+    driver: local
+
+  kong_data: {}
+  kong_prefix_vol:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  kong_tmp_vol:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+
 
 networks:
   default:
     driver: bridge
+
+secrets:
+  kong_postgres_password:
+    file: ./POSTGRES_PASSWORD
