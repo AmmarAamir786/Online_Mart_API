@@ -21,7 +21,7 @@ services:
       - broker
       - schema-registry
     ports:
-      - "80011:8000"  # Expose container port 8000 to host port 8000 
+      - "8011:8000"  # Expose container port 8000 to host port 8000 
 
   product-consumer-service:
     build:
