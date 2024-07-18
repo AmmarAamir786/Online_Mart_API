@@ -9,5 +9,4 @@ except FileNotFoundError:
 BOOTSTRAP_SERVER = config("BOOTSTRAP_SERVER", cast=str)
 KAFKA_PRODUCT_TOPIC = config("KAFKA_PRODUCT_TOPIC", cast=str)
 
-#BOOTSTRAP_SERVER = "broker:19092"
-#KAFKA_PRODUCT_TOPIC = "product_topic"
+KAFKA_SCHEMA_REGISTRY_URL = config("KAFKA_SCHEMA_REGISTRY_URL", cast=str)
