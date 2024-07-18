@@ -1,4 +1,5 @@
-from aiokafka import AIOKafkaProducer, ConfluentSchemaRegistry
+from aiokafka import AIOKafkaProducer
+from aiokafka.helpers import ConfluentSchemaRegistry
 from product_service.setting import BOOTSTRAP_SERVER, KAFKA_SCHEMA_REGISTRY_URL
 
 
