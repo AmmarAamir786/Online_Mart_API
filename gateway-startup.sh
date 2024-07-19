@@ -1,7 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+
+# Install curl
+apk update
+apk add --no-cache curl
 
 # Wait until Kong is fully up
-until $(curl --output /dev/null --silent --head --fail http://localhost:8001); do
+until $(curl --output /dev/null --silent --head --fail http://kong:8001); do
     echo "Waiting for Kong to be up..."
     sleep 5
 done
@@ -20,13 +24,12 @@ services_and_routes=(
 for service in "${!services_and_routes[@]}"; do
     route="${services_and_routes[$service]}"
     # Add service
-    curl -i -X POST http://localhost:8001/services/ \
+    curl -i -X POST http://kong:8001/services/ \
         --data "name=${service}" \
         --data "url=http://${service}"
 
     # Add route
-    curl -i -X POST http://localhost:8001/services/${service}/routes \
+    curl -i -X POST http://kong:8001/services/${service}/routes \
         --data "paths[]=/api/${route}" \
         --data "strip_path=false"
 done
-
