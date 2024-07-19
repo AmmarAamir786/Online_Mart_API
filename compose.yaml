@@ -301,7 +301,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - kong_db_data:/var/lib/postgresql/data
+      - kong_data:/var/lib/postgresql/data
     networks:
       - ammar-net
 
