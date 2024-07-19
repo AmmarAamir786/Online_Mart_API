@@ -22,5 +22,8 @@ RUN poetry install --no-root --no-cache --no-interaction
     #--no-cache: Skips using the local cache and downloads fresh packages. Useful for the first build or debugging purposes.
     #--no-interaction: Performs the installation without prompting for user input.
 
-CMD ["poetry", "run", "uvicorn", "order_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Make the port available to the world outside this container
+EXPOSE 8013
+
+CMD ["poetry", "run", "uvicorn", "order_service.main:app", "--host", "0.0.0.0", "--port", "8013", "--reload"]
 #This line defines the default command that will be executed when you run your Docker container

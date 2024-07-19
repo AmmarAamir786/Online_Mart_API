@@ -21,7 +21,9 @@ services:
       - broker
       - schema-registry
     ports:
-      - "8011:8000"  # Expose container port 8000 to host port 8000 
+      - "8011:8011"  # Expose container port right to host port left 
+    networks:
+      - ammar-net
 
   product-consumer-service:
     build:
@@ -34,7 +36,9 @@ services:
       - broker
       - schema-registry
     ports:
-      - "8012:8000"  # Expose container port 8000 to host port 8000 
+      - "8012:8012"  # Expose container port right to host port left 
+    networks:
+      - ammar-net
 
   product_db:
     image: postgres:latest  # Use the official PostgreSQL image
@@ -48,6 +52,8 @@ services:
         - '5433:5432'
     volumes:
         - product_db:/var/lib/postgresql/data
+    networks:
+      - ammar-net
         
 
   order-service:
@@ -60,7 +66,9 @@ services:
       - kafka-ui
       - broker
     ports:
-      - "8013:8000"  # Expose container port 8000 to host port 8000 
+      - "8013:8013"  # Expose container port right to host port left
+    networks:
+      - ammar-net
 
   order-consumer-service:
     build:
@@ -73,7 +81,9 @@ services:
       - broker
       - schema-registry
     ports:
-      - "8014:8000"  # Expose container port 8000 to host port 8000 
+      - "8014:8014"  # Expose container port right to host port left  
+    networks:
+      - ammar-net
 
   order_db:
     image: postgres:latest  # Use the official PostgreSQL image
@@ -87,6 +97,8 @@ services:
         - '5434:5432'
     volumes:
         - order_db:/var/lib/postgresql/data
+    networks:
+      - ammar-net
 
 
   inventory-service:
@@ -100,7 +112,9 @@ services:
       - broker
       - schema-registry
     ports:
-      - "8015:8000"  # Expose container port 8000 to host port 8000 
+      - "8015:8015"  # Expose container port right to host port left 
+    networks:
+      - ammar-net
 
   inventory-consumer-service:
     build:
@@ -113,7 +127,9 @@ services:
       - broker
       - schema-registry
     ports:
-      - "8016:8000"  # Expose container port 8000 to host port 8000 
+      - "8016:8016"  # Expose container port right to host port left 
+    networks:
+      - ammar-net
 
   inventory_db:
     image: postgres:latest  # Use the official PostgreSQL image
@@ -127,6 +143,8 @@ services:
         - '5435:5432'
     volumes:
         - inventory_db:/var/lib/postgresql/data
+    networks:
+      - ammar-net
 
 
   broker:
@@ -150,6 +168,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    networks:
+      - ammar-net
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -162,6 +182,8 @@ services:
       DYNAMIC_CONFIG_ENABLED: "true"
     depends_on:
       - broker
+    networks:
+      - ammar-net
   
   schema-registry:
     image: confluentinc/cp-schema-registry:6.1.1
@@ -173,6 +195,8 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:19092
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      - ammar-net
 
 
   kong-migrations:
@@ -186,6 +210,8 @@ services:
     secrets:
       - kong_postgres_password
     restart: on-failure
+    networks:
+      - ammar-net
 
   # Kong Database configuration modification service
   kong-migrations-up:
@@ -199,6 +225,8 @@ services:
     secrets:
       - kong_postgres_password
     restart: on-failure
+    networks:
+      - ammar-net
 
   # Kong Service
   kong:
@@ -243,6 +271,8 @@ services:
       # - ./config:/opt/kong
     security_opt:
       - no-new-privileges
+    networks:
+      - ammar-net
 
   # Kong Database Service
   kong_db:
@@ -271,7 +301,9 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - kong_data:/var/lib/postgresql/data
+      - kong_db_data:/var/lib/postgresql/data
+    networks:
+      - ammar-net
 
 
 volumes:
@@ -294,8 +326,7 @@ volumes:
 
 
 networks:
-  default:
-    driver: bridge
+  ammar-net:
 
 secrets:
   kong_postgres_password:
