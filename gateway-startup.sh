@@ -29,3 +29,4 @@ for service in "${!services_and_routes[@]}"; do
         --data "paths[]=/api/${route}" \
         --data "strip_path=false"
 done
+
