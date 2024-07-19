@@ -273,6 +273,8 @@ services:
       - no-new-privileges
     networks:
       - ammar-net
+    depends_on:
+      - gateway-setup
 
   # Kong Database Service
   kong_db:
@@ -304,7 +306,14 @@ services:
       - kong_data:/var/lib/postgresql/data
     networks:
       - ammar-net
-
+      
+  gateway-setup:
+    image: busybox
+    volumes:
+      - ./gateway-startup.sh:/gateway-startup.sh
+    entrypoint: ["sh", "/gateway-startup.sh"]
+    networks:
+      - ammar-net
 
 volumes:
   product_db:

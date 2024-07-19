@@ -6,68 +6,26 @@ until $(curl --output /dev/null --silent --head --fail http://localhost:8001); d
     sleep 5
 done
 
-# Add product-service and routes
-curl -i -X POST http://localhost:8001/services/ \
-    --data "name=product-service" \
-    --data "url=http://host.docker.internal:8011"
+# Add services and routes to Kong
+declare -A services_and_routes
+services_and_routes=(
+    ["product-service:8011"]="products"
+    ["product-consumer-service:8012"]="products"
+    ["order-service:8013"]="orders"
+    ["order-consumer-service:8014"]="orders"
+    ["inventory-service:8015"]="inventory"
+    ["inventory-consumer-service:8016"]="inventory"
+)
 
-curl -i -X POST http://localhost:8001/services/product-service/routes \
-    --data "paths[]=/products" \
-    --data "methods[]=POST" \
-    --data "methods[]=PUT" \
-    --data "methods[]=DELETE" \
-    --data "strip_path=false"
+for service in "${!services_and_routes[@]}"; do
+    route="${services_and_routes[$service]}"
+    # Add service
+    curl -i -X POST http://localhost:8001/services/ \
+        --data "name=${service}" \
+        --data "url=http://${service}"
 
-# Add product-consumer-service and routes
-curl -i -X POST http://localhost:8001/services/ \
-    --data "name=product-consumer-service" \
-    --data "url=http://host.docker.internal:8012"
-
-curl -i -X POST http://localhost:8001/services/product-consumer-service/routes \
-    --data "paths[]=/products" \
-    --data "methods[]=GET" \
-    --data "strip_path=false"
-
-# Add order-service and routes
-curl -i -X POST http://localhost:8001/services/ \
-    --data "name=order-service" \
-    --data "url=http://host.docker.internal:8013"
-
-curl -i -X POST http://localhost:8001/services/order-service/routes \
-    --data "paths[]=/orders" \
-    --data "methods[]=POST" \
-    --data "methods[]=PUT" \
-    --data "methods[]=DELETE" \
-    --data "strip_path=false"
-
-# Add order-consumer-service and routes
-curl -i -X POST http://localhost:8001/services/ \
-    --data "name=order-consumer-service" \
-    --data "url=http://host.docker.internal:8014"
-
-curl -i -X POST http://localhost:8001/services/order-consumer-service/routes \
-    --data "paths[]=/orders" \
-    --data "methods[]=GET" \
-    --data "strip_path=false"
-
-# Add inventory-service and routes
-curl -i -X POST http://localhost:8001/services/ \
-    --data "name=inventory-service" \
-    --data "url=http://host.docker.internal:8015"
-
-curl -i -X POST http://localhost:8001/services/inventory-service/routes \
-    --data "paths[]=/inventory" \
-    --data "methods[]=POST" \
-    --data "methods[]=PUT" \
-    --data "methods[]=DELETE" \
-    --data "strip_path=false"
-
-# Add inventory-consumer-service and routes
-curl -i -X POST http://localhost:8001/services/ \
-    --data "name=inventory-consumer-service" \
-    --data "url=http://host.docker.internal:8016"
-
-curl -i -X POST http://localhost:8001/services/inventory-consumer-service/routes \
-    --data "paths[]=/inventory" \
-    --data "methods[]=GET" \
-    --data "strip_path=false"
+    # Add route
+    curl -i -X POST http://localhost:8001/services/${service}/routes \
+        --data "paths[]=/api/${route}" \
+        --data "strip_path=false"
+done
