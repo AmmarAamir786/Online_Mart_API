@@ -19,7 +19,7 @@ services:
     depends_on:
       - kafka-ui
       - broker
-      - schema-registry
+      # - schema-registry
     ports:
       - "8011:8011"  # Expose container port right to host port left 
     networks:
@@ -34,7 +34,7 @@ services:
     depends_on:
       - product_db
       - broker
-      - schema-registry
+      # - schema-registry
     ports:
       - "8012:8012"  # Expose container port right to host port left 
     networks:
@@ -56,95 +56,95 @@ services:
       - ammar-net
         
 
-  order-service:
-    build:
-      context: ./order-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./order-service:/app  # Sync local development directory with the container
-    depends_on:
-      - kafka-ui
-      - broker
-    ports:
-      - "8013:8013"  # Expose container port right to host port left
-    networks:
-      - ammar-net
+  # order-service:
+  #   build:
+  #     context: ./order-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./order-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - kafka-ui
+  #     - broker
+  #   ports:
+  #     - "8013:8013"  # Expose container port right to host port left
+  #   networks:
+  #     - ammar-net
 
-  order-consumer-service:
-    build:
-      context: ./order-consumer-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./order-consumer-service:/app  # Sync local development directory with the container
-    depends_on:
-      - order_db
-      - broker
-      - schema-registry
-    ports:
-      - "8014:8014"  # Expose container port right to host port left  
-    networks:
-      - ammar-net
+  # order-consumer-service:
+  #   build:
+  #     context: ./order-consumer-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./order-consumer-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - order_db
+  #     - broker
+  #     - schema-registry
+  #   ports:
+  #     - "8014:8014"  # Expose container port right to host port left  
+  #   networks:
+  #     - ammar-net
 
-  order_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: Order_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=order_db
-    ports:
-        - '5434:5432'
-    volumes:
-        - order_db:/var/lib/postgresql/data
-    networks:
-      - ammar-net
+  # order_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: Order_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=order_db
+  #   ports:
+  #       - '5434:5432'
+  #   volumes:
+  #       - order_db:/var/lib/postgresql/data
+  #   networks:
+  #     - ammar-net
 
 
-  inventory-service:
-    build:
-      context: ./inventory-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./inventory-service:/app  # Sync local development directory with the container
-    depends_on:
-      - kafka-ui
-      - broker
-      - schema-registry
-    ports:
-      - "8015:8015"  # Expose container port right to host port left 
-    networks:
-      - ammar-net
+  # inventory-service:
+  #   build:
+  #     context: ./inventory-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./inventory-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - kafka-ui
+  #     - broker
+  #     - schema-registry
+  #   ports:
+  #     - "8015:8015"  # Expose container port right to host port left 
+  #   networks:
+  #     - ammar-net
 
-  inventory-consumer-service:
-    build:
-      context: ./inventory-consumer-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./inventory-consumer-service:/app  # Sync local development directory with the container
-    depends_on:
-      - inventory_db
-      - broker
-      - schema-registry
-    ports:
-      - "8016:8016"  # Expose container port right to host port left 
-    networks:
-      - ammar-net
+  # inventory-consumer-service:
+  #   build:
+  #     context: ./inventory-consumer-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./inventory-consumer-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - inventory_db
+  #     - broker
+  #     - schema-registry
+  #   ports:
+  #     - "8016:8016"  # Expose container port right to host port left 
+  #   networks:
+  #     - ammar-net
 
-  inventory_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: Inventory_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=inventory_db
-    ports:
-        - '5435:5432'
-    volumes:
-        - inventory_db:/var/lib/postgresql/data
-    networks:
-      - ammar-net
+  # inventory_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: Inventory_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=inventory_db
+  #   ports:
+  #       - '5435:5432'
+  #   volumes:
+  #       - inventory_db:/var/lib/postgresql/data
+  #   networks:
+  #     - ammar-net
 
 
   broker:
@@ -185,18 +185,18 @@ services:
     networks:
       - ammar-net
   
-  schema-registry:
-    image: confluentinc/cp-schema-registry:6.1.1
-    depends_on:
-      - broker
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:19092
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-    networks:
-      - ammar-net
+  # schema-registry:
+  #   image: confluentinc/cp-schema-registry:6.1.1
+  #   depends_on:
+  #     - broker
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:19092
+  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
+  #     SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+  #   networks:
+  #     - ammar-net
 
 
   kong-migrations:
@@ -318,10 +318,10 @@ services:
 volumes:
   product_db:
     driver: local
-  order_db:
-    driver: local
-  inventory_db:
-    driver: local
+  # order_db:
+  #   driver: local
+  # inventory_db:
+  #   driver: local
 
   kong_data: {}
   kong_prefix_vol:
