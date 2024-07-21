@@ -21,14 +21,24 @@ for entry in $services_and_routes; do
     route=$(echo $entry | cut -d, -f2)
     name=$(echo $service | cut -d: -f1)
     port=$(echo $service | cut -d: -f2)
-    
-    # Add service
-    curl -i -X POST http://kong:8001/services/ \
-        --data "name=${name}" \
-        --data "url=http://host.docker.internal:${port}"
 
-    # Add route
-    curl -i -X POST http://kong:8001/services/${name}/routes \
-        --data "paths[]=/api/${route}" \
-        --data "strip_path=false"
+    # Check if service already exists
+    if ! curl --silent --fail http://kong:8001/services/${name}; then
+        # Add service
+        curl -i -X POST http://kong:8001/services/ \
+            --data "name=${name}" \
+            --data "url=http://host.docker.internal:${port}"
+    else
+        echo "Service ${name} already exists"
+    fi
+
+    # Check if route already exists
+    if ! curl --silent --fail http://kong:8001/routes/${name}; then
+        # Add route
+        curl -i -X POST http://kong:8001/services/${name}/routes \
+            --data "paths[]=/api/${route}" \
+            --data "strip_path=false"
+    else
+        echo "Route for service ${name} already exists"
+    fi
 done
