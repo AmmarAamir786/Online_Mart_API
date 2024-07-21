@@ -14,10 +14,6 @@ done
 services_and_routes="
 product-service:8011,products
 product-consumer-service:8012,products
-order-service:8013,orders
-order-consumer-service:8014,orders
-inventory-service:8015,inventory
-inventory-consumer-service:8016,inventory
 "
 
 for entry in $services_and_routes; do
