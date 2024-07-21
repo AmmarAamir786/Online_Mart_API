@@ -310,8 +310,8 @@ services:
   gateway-setup:
     image: alpine:latest
     volumes:
-      - ./gateway-startup.sh:/gateway-startup.sh
-    entrypoint: ["/bin/sh", "./gateway-startup.sh"]
+      - ./kong/gateway-startup.sh:/gateway-startup.sh
+    entrypoint: ["/bin/sh", "/gateway-startup.sh"]
     networks:
       - ammar-net
 
