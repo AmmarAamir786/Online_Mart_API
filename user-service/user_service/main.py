@@ -18,13 +18,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="User Service", version='1.0.0')
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to allow specific origins
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],  # Adjust this to allow specific origins
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 @app.get("/")
 async def read_user():
