@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select
+from fastapi.middleware.cors import CORSMiddleware
 
 from user_service.models import CreateShippingDetails, ShippingDetails, UpdateShippingDetails, User
 from user_service.models import Register_User
@@ -16,6 +17,14 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan, title="User Service", version='1.0.0')
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to allow specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def read_user():
