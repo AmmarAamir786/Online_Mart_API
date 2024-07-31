@@ -343,7 +343,7 @@ volumes:
   #   driver: local
   # inventory_db:
   #   driver: local
-  order_db:
+  user_db:
     driver: local
 
   kong_data: {}
