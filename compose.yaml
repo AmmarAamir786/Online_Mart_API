@@ -1,59 +1,55 @@
 version: '3.8'
 name: ammar-mart
 
-x-kong-config: &kong-env
-  KONG_DATABASE: ${KONG_DATABASE:-postgres}
+x-kong-config:
+  &kong-env
+  KONG_DATABASE: ${KONG_DATABASE:-postgres} 
   KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-  KONG_PG_HOST: kong_db
+  KONG_PG_HOST: db
   KONG_PG_USER: ${KONG_PG_USER:-kong}
   KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
 
 services:
 
-  product-service:
-    build:
-      context: ./product-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./product-service:/app  # Sync local development directory with the container
-    depends_on:
-      - kafka-ui
-      - broker
-      # - schema-registry
-    ports:
-      - "8011:8011"  # Expose container port right to host port left 
-    networks:
-      - ammar-net
+  # product-service:
+  #   build:
+  #     context: ./product-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./product-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - kafka-ui
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8011:8000"  # Expose container port right to host port left 
 
-  product-consumer-service:
-    build:
-      context: ./product-consumer-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./product-consumer-service:/app  # Sync local development directory with the container
-    depends_on:
-      - product_db
-      - broker
-      # - schema-registry
-    ports:
-      - "8012:8012"  # Expose container port right to host port left 
-    networks:
-      - ammar-net
+  # product-consumer-service:
+  #   build:
+  #     context: ./product-consumer-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./product-consumer-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - product_db
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8012:8000"  # Expose container port right to host port left 
 
-  product_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: Product_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=product_db
-    ports:
-        - '5433:5432'
-    volumes:
-        - product_db:/var/lib/postgresql/data
-    networks:
-      - ammar-net
+
+  # product_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: Product_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=product_db
+  #   ports:
+  #       - '5433:5432'
+  #   volumes:
+  #       - product_db:/var/lib/postgresql/data
         
 
   # order-service:
@@ -147,6 +143,33 @@ services:
   #     - ammar-net
 
 
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./user-service:/app  # Sync local development directory with the container
+    depends_on:
+      - user_db
+      - broker
+      # - schema-registry
+    ports:
+      - "8017:8000"  # Expose container port right to host port left 
+
+  user_db:
+    image: postgres:latest  # Use the official PostgreSQL image
+    restart: always
+    container_name: User_db_Cont
+    environment:
+        - POSTGRES_USER=ammar
+        - POSTGRES_PASSWORD=my_password
+        - POSTGRES_DB=user_db
+    ports:
+        - '5436:5432'
+    volumes:
+        - user_db:/var/lib/postgresql/data
+
+
   broker:
     image: apache/kafka:3.7.0
     hostname: broker
@@ -168,8 +191,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-    networks:
-      - ammar-net
+
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -182,8 +204,7 @@ services:
       DYNAMIC_CONFIG_ENABLED: "true"
     depends_on:
       - broker
-    networks:
-      - ammar-net
+
   
   # schema-registry:
   #   image: confluentinc/cp-schema-registry:6.1.1
@@ -199,36 +220,68 @@ services:
   #     - ammar-net
 
 
-  kong-migrations:
+  db:
+    image: postgres:9.5
+    profiles: [ "database" ]
+    environment:
+      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
+      POSTGRES_USER: ${KONG_PG_USER:-kong}
+      POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${KONG_PG_DATABASE:-kong}", "-U", "${KONG_PG_USER:-kong}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: on-failure
+    stdin_open: true
+    tty: true
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+#===============================================================================================
+  kong-migrations-bootstrap:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     command: kong migrations bootstrap
-    profiles: ["database"]
+    profiles: [ "database" ]
     depends_on:
-      - kong_db
+      db:
+        condition: service_healthy
     environment:
       <<: *kong-env
+      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
     secrets:
       - kong_postgres_password
     restart: on-failure
-    networks:
-      - ammar-net
-
-  # Kong Database configuration modification service
+#===============================================================================================
   kong-migrations-up:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
-    command: kong migrations up && kong migrations finish
-    profiles: ["database"]
+    command: kong migrations up --vv
+    profiles: [ "database" ]
     depends_on:
-      - kong_db
+      kong-migrations-bootstrap:
+        condition: service_completed_successfully
     environment:
       <<: *kong-env
+      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
     secrets:
       - kong_postgres_password
     restart: on-failure
-    networks:
-      - ammar-net
-
-  # Kong Service
+#===============================================================================================
+  kong-migrations-finish:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations finish --vv
+    profiles: [ "database" ]
+    depends_on:
+      kong-migrations-up:
+        condition: service_completed_successfully
+    environment:
+      <<: *kong-env
+      KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
+    secrets:
+      - kong_postgres_password
+    restart: on-failure
+#===============================================================================================
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
@@ -242,7 +295,7 @@ services:
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_PREFIX: ${KONG_PREFIX:-/var/run/kong}
-      # KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
     secrets:
       - kong_postgres_password
     ports:
@@ -259,7 +312,7 @@ services:
       - "127.0.0.1:8444:8444/tcp"
       - "127.0.0.1:8002:8002/tcp"
     healthcheck:
-      test: ["CMD", "kong", "health"]
+      test: [ "CMD", "kong", "health" ]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -271,53 +324,21 @@ services:
       # - ./config:/opt/kong
     security_opt:
       - no-new-privileges
-    networks:
-      - ammar-net
     depends_on:
-      - gateway-setup
+      kong-migrations-finish:
+        condition: service_completed_successfully
 
-  # Kong Database Service
-  kong_db:
-    image: postgres:9.5
-    profiles: ["database"]
-    environment:
-      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
-      POSTGRES_USER: ${KONG_PG_USER:-kong}
-      POSTGRES_PASSWORD_FILE: /run/secrets/kong_postgres_password
-    secrets:
-      - kong_postgres_password
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "pg_isready",
-          "-d",
-          "${KONG_PG_DATABASE:-kong}",
-          "-U",
-          "${KONG_PG_USER:-kong}",
-        ]
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    restart: on-failure
-    stdin_open: true
-    tty: true
-    volumes:
-      - kong_data:/var/lib/postgresql/data
-    networks:
-      - ammar-net
-      
-  gateway-setup:
-    image: alpine:latest
-    volumes:
-      - ./kong/gateway-startup.sh:/gateway-startup.sh
-    entrypoint: ["/bin/sh", "/gateway-startup.sh"]
-    networks:
-      - ammar-net
+  # gateway-setup:
+  #   build:
+  #     context: ./kong
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./kong/gateway-startup.sh:/app/gateway-startup.sh
+  #   entrypoint: ["/bin/sh", "/app/gateway-startup.sh"]
 
 volumes:
-  product_db:
-    driver: local
+  # product_db:
+  #   driver: local
   # order_db:
   #   driver: local
   # inventory_db:
@@ -334,7 +355,8 @@ volumes:
       device: tmpfs
 
 networks:
-  ammar-net:
+  default:
+    driver: bridge
 
 secrets:
   kong_postgres_password:

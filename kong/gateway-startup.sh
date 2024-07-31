@@ -1,44 +1,45 @@
 #!/bin/sh
 
-# Install curl
-apk update
-apk add --no-cache curl
+echo "Starting gateway setup..."
 
-# Wait until Kong is fully up
-until curl --output /dev/null --silent --head --fail http://kong:8001; do
-    echo "Waiting for Kong to be up..."
+# Check if .env file exists and load environment variables
+if [ -f .env ]; then
+    set -a
+    . ./.env
+    set +a
+fi
+
+# Define Kong admin URL
+KONG_ADMIN_URL="http://localhost:8001"
+
+# Wait for Kong to be ready
+echo "Waiting for Kong to be ready..."
+until curl --output /dev/null --silent --head --fail $KONG_ADMIN_URL; do
+    printf '.'
     sleep 5
 done
 
-# Add services and routes to Kong
-services_and_routes="
-product-service:8011,products
-product-consumer-service:8012,products
-"
+echo "Kong is ready!"
 
-for entry in $services_and_routes; do
-    service=$(echo $entry | cut -d, -f1)
-    route=$(echo $entry | cut -d, -f2)
-    name=$(echo $service | cut -d: -f1)
-    port=$(echo $service | cut -d: -f2)
+# Register services and add JWT plugin to each service
+echo "Registering product-service..."
+curl -i -v -X POST $KONG_ADMIN_URL/services/ \
+    --data "name=product-service" \
+    --data "url=http://host.docker.internal:8011"
 
-    # Check if service already exists
-    if ! curl --silent --fail http://kong:8001/services/${name}; then
-        # Add service
-        curl -i -X POST http://kong:8001/services/ \
-            --data "name=${name}" \
-            --data "url=http://host.docker.internal:${port}"
-    else
-        echo "Service ${name} already exists"
-    fi
+echo "Adding route for product-service..."
+curl -i -v -X POST $KONG_ADMIN_URL/services/product-service/routes \
+    --data "paths[]=/products" \
+    --data "strip_path=true"
 
-    # Check if route already exists
-    if ! curl --silent --fail http://kong:8001/routes/${name}; then
-        # Add route
-        curl -i -X POST http://kong:8001/services/${name}/routes \
-            --data "paths[]=/api/${route}" \
-            --data "strip_path=false"
-    else
-        echo "Route for service ${name} already exists"
-    fi
-done
+echo "Registering product-consumer-service..."
+curl -i -v -X POST $KONG_ADMIN_URL/services/ \
+    --data "name=product-consumer-service" \
+    --data "url=http://host.docker.internal:8012"
+
+echo "Adding route for product-consumer-service..."
+curl -i -v -X POST $KONG_ADMIN_URL/services/product-consumer-service/routes \
+    --data "paths[]=/products" \
+    --data "strip_path=true"
+
+echo "Gateway setup complete."

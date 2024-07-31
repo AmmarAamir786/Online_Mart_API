@@ -42,6 +42,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan, title="Product Consumer Service", version='1.0.0')
 
 
+@app.get('/')
+async def root():
+    return {"message" : "product consumer service"}
+
+
 @app.get("/products/", response_model=List[Product])
 async def get_products():
     with Session(engine) as session:

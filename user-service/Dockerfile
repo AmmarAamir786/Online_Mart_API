@@ -25,5 +25,5 @@ RUN poetry install --no-root --no-cache --no-interaction
 # Make the port available to the world outside this container
 EXPOSE 8000
 
-CMD ["poetry", "run", "uvicorn", "product_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["poetry", "run", "uvicorn", "user_service.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 #This line defines the default command that will be executed when you run your Docker container
