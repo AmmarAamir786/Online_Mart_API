@@ -51,6 +51,9 @@ class UpdateShippingDetails(BaseModel):
     postal_code: Optional[str] = None
     country: Optional[str] = None
 
+class TokenData (BaseModel):
+        username:str
+
 # # Create the model for Roles
 # class Role(SQLModel, table=True):
 #     id: int = Field(default=None, primary_key=True)
