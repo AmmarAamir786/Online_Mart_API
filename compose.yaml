@@ -73,7 +73,7 @@ services:
     depends_on:
       - order_db
       - broker
-      - schema-registry
+      # - schema-registry
     ports:
       - "8014:8014"  # Expose container port right to host port left  
 
@@ -100,7 +100,7 @@ services:
     depends_on:
       - kafka-ui
       - broker
-      - schema-registry
+      # - schema-registry
     ports:
       - "8015:8015"  # Expose container port right to host port left 
 
@@ -113,7 +113,7 @@ services:
     depends_on:
       - inventory_db
       - broker
-      - schema-registry
+      # - schema-registry
     ports:
       - "8016:8016"  # Expose container port right to host port left 
 
