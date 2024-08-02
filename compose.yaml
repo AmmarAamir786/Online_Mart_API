@@ -63,8 +63,6 @@ services:
       - broker
     ports:
       - "8013:8013"  # Expose container port right to host port left
-    networks:
-      - ammar-net
 
   order-consumer-service:
     build:
@@ -78,8 +76,6 @@ services:
       - schema-registry
     ports:
       - "8014:8014"  # Expose container port right to host port left  
-    networks:
-      - ammar-net
 
   order_db:
     image: postgres:latest  # Use the official PostgreSQL image
@@ -93,8 +89,6 @@ services:
         - '5434:5432'
     volumes:
         - order_db:/var/lib/postgresql/data
-    networks:
-      - ammar-net
 
 
   inventory-service:
@@ -109,8 +103,6 @@ services:
       - schema-registry
     ports:
       - "8015:8015"  # Expose container port right to host port left 
-    networks:
-      - ammar-net
 
   inventory-consumer-service:
     build:
@@ -124,8 +116,6 @@ services:
       - schema-registry
     ports:
       - "8016:8016"  # Expose container port right to host port left 
-    networks:
-      - ammar-net
 
   inventory_db:
     image: postgres:latest  # Use the official PostgreSQL image
@@ -139,8 +129,6 @@ services:
         - '5435:5432'
     volumes:
         - inventory_db:/var/lib/postgresql/data
-    networks:
-      - ammar-net
 
 
   user-service:
@@ -216,8 +204,6 @@ services:
   #     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker:19092
   #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
   #     SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-  #   networks:
-  #     - ammar-net
 
 
   db:
