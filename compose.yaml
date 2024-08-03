@@ -193,7 +193,6 @@ services:
     depends_on:
       - broker
 
-  
   # schema-registry:
   #   image: confluentinc/cp-schema-registry:6.1.1
   #   depends_on:
@@ -314,13 +313,13 @@ services:
       kong-migrations-finish:
         condition: service_completed_successfully
 
-  # gateway-setup:
-  #   build:
-  #     context: ./kong
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./kong/gateway-startup.sh:/app/gateway-startup.sh
-  #   entrypoint: ["/bin/sh", "/app/gateway-startup.sh"]
+  gateway-setup:
+    build:
+      context: ./kong
+      dockerfile: Dockerfile
+    volumes:
+      - ./kong/gateway-startup.sh:/app/gateway-startup.sh
+    entrypoint: ["/bin/sh", "/app/gateway-startup.sh"]
 
 volumes:
   product_db:
