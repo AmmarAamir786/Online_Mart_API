@@ -6,15 +6,12 @@ from sqlmodel import Session, select
 
 from inventory_consumer_service.consumers.consume_inventory import consume_inventory
 from inventory_consumer_service.consumers.consume_product_confirmation import consume_product_confirmation
-from inventory_consumer_service.consumers.consume_validation import consume_validation
 from inventory_consumer_service.consumers.consume_inventory_update import consume_inventory_update
 
 from inventory_consumer_service.models import Inventory
 from inventory_consumer_service.db import create_tables, engine, get_session
-from inventory_consumer_service.setting import KAFKA_INVENTORY_RESPONSE_TOPIC
 
 from inventory_consumer_service.utils.logger import logger
-from inventory_consumer_service.utils.topic import create_topic
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,13 +20,10 @@ async def lifespan(app: FastAPI):
     create_tables()
     logger.info("Tables Created")
 
-    await create_topic(topic=KAFKA_INVENTORY_RESPONSE_TOPIC)
-
     loop = asyncio.get_event_loop()
     tasks = [
         loop.create_task(consume_inventory()),
         loop.create_task(consume_product_confirmation()),
-        loop.create_task(consume_validation()),
         loop.create_task(consume_inventory_update())
     ]
     

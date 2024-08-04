@@ -8,7 +8,7 @@ from order_service.utils.logger import logger
 from order_service.utils.uuid import short_uuid
 
 from order_service.proto import order_pb2, operation_pb2
-from order_service.models import OrderCreate, OrderUpdate
+from order_service.models import OrderCreate
 from order_service.setting import KAFKA_ORDER_TOPIC
 
 from aiokafka import AIOKafkaProducer
@@ -45,31 +45,6 @@ async def create_order(
     await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
 
     return {"Order": "Created", "order_id": order_id}
-
-
-@app.put('/orders/')
-async def edit_order(
-    order_id: str,
-    order_update: OrderUpdate,
-    producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)]
-):
-    order_proto = order_pb2.Order()
-    order_proto.order_id = order_id
-    order_proto.operation = operation_pb2.OperationType.UPDATE
-
-    if order_update.products:
-        for product in order_update.products:
-            order_product_proto = order_pb2.OrderProduct()
-            order_product_proto.product_id = product.product_id
-            order_product_proto.quantity = product.quantity
-            order_proto.products.append(order_product_proto)
-
-    logger.info(f"Sending order {order_proto} update to kafka")
-
-    serialized_order = order_proto.SerializeToString()
-    await producer.send_and_wait(KAFKA_ORDER_TOPIC, serialized_order)
-
-    return {"Order": "Updated"}
 
 
 @app.delete('/orders/')

@@ -6,6 +6,7 @@ from order_consumer_service.utils.uuid import short_uuid
 class Order(SQLModel, table=True):
     order_id: str = Field(default_factory=lambda: str(short_uuid()), primary_key=True)
     products: List["OrderProduct"] = Relationship(back_populates="order")
+    order_status: str = Field(default="order created")
 
 class OrderProduct(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -17,6 +18,6 @@ class OrderProduct(SQLModel, table=True):
 class OrderCreate(BaseModel):
     products: List[OrderProduct]
 
-class OrderUpdate(BaseModel):
-    order_id: str
-    products: Optional[List[OrderProduct]] = None
+# class OrderUpdate(BaseModel):
+#     order_id: str
+#     products: Optional[List[OrderProduct]] = None

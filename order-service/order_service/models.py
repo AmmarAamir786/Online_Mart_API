@@ -13,7 +13,3 @@ class OrderCreate(BaseModel):
 class Order(BaseModel):
     order_id: str = Field(default_factory=lambda: str(short_uuid()))
     products: List[OrderProduct]
-
-class OrderUpdate(BaseModel):
-    order_id: str
-    products: Optional[List[OrderProduct]] = None

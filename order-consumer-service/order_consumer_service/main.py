@@ -8,8 +8,7 @@ from order_consumer_service.models import Order, OrderProduct
 from order_consumer_service.db import create_tables, engine, get_session
 from order_consumer_service.setting import KAFKA_INVENTORY_UPDATE_TOPIC
 
-from order_consumer_service.consumers.consume_delete_order import consume_delete_order
-from order_consumer_service.consumers.consume_inventory_response import consume_inventory_response
+from order_consumer_service.consumers.consume_order import consume_order
 
 from order_consumer_service.utils.logger import logger
 from order_consumer_service.utils.topic import create_topic
@@ -26,8 +25,7 @@ async def lifespan(app: FastAPI):
 
     loop = asyncio.get_event_loop()
     tasks = [
-        loop.create_task(consume_delete_order()),
-        loop.create_task(consume_inventory_response())
+        loop.create_task(consume_order())
     ]
     
     yield
@@ -51,7 +49,8 @@ async def get_orders(session = Depends(get_session)):
 
         order_dict = {
             "order_id": order.order_id,
-            "products": [{"product_id": product.product_id, "quantity": product.quantity} for product in products]
+            "products": [{"product_id": product.product_id, "quantity": product.quantity} for product in products],
+            "order_status": order.order_status
         }
         result.append(order_dict)
 
@@ -69,7 +68,8 @@ async def get_order(order_id: str, session = Depends(get_session)):
 
     order_dict = {
         "order_id": order.order_id,
-        "products": [{"product_id": product.product_id, "quantity": product.quantity} for product in products]
+        "products": [{"product_id": product.product_id, "quantity": product.quantity} for product in products],
+        "order_status": order.order_status
     }
 
     return order_dict
