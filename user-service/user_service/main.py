@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends, HTTPException
+from typing import Annotated
+from fastapi import FastAPI, Depends, HTTPException, Form, status
 from sqlmodel import Session, select
-from fastapi.middleware.cors import CORSMiddleware
 
-from user_service.models import CreateShippingDetails, ShippingDetails, UpdateShippingDetails, User
-from user_service.models import Register_User
-from user_service.auth import current_user, get_user_from_db, hash_password
+from user_service.models import CreateShippingDetails, RegisterUser, ShippingDetails, UpdateShippingDetails, User
+from user_service.auth import create_access_token, current_user, get_user_from_db, hash_password, verify_password
 from user_service.utils.logger import logger
 from user_service.db import create_tables, get_session
 
@@ -18,21 +17,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="User Service", version='1.0.0')
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],  # Adjust this to allow specific origins
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
 
 @app.get("/")
 async def read_user():
     return {"message": "Welcome User"}
 
 @app.post("/register")
-async def register_user(new_user: Register_User, session: Session = Depends(get_session)):
-    db_user = get_user_from_db(session, new_user.username, new_user.email)
+async def register_user(new_user: RegisterUser, session: Session = Depends(get_session)):
+    db_user = get_user_from_db(session, username=new_user.username, email=new_user.email)
     if db_user:
         raise HTTPException(status_code=409, detail="User with current credentials already exists")
     
@@ -43,10 +35,25 @@ async def register_user(new_user: Register_User, session: Session = Depends(get_
     session.refresh(user)
     return {"message": f"User with the username {user.username} successfully added"}
 
+@app.post("/token")
+async def login_for_access_token(
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+    session: Session = Depends(get_session)
+):
+    user = get_user_from_db(session, username=username)
+    if not user or not verify_password(password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(data={"sub": user.username, "email": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @app.get("/me")
 async def user_profile(current_user: User = Depends(current_user)):
     return current_user
-
 
 @app.post("/shipping-details")
 async def create_shipping_details(

@@ -1,31 +1,22 @@
 from fastapi import Form
 from pydantic import BaseModel
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from typing import Annotated, Optional
 
-# Create the model for our Users
-class User (SQLModel, table=True):
-        id: int = Field(default=None, primary_key=True)
-        username: str
-        email:str
-        password:str
+# User model
+class User(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    username: str
+    email: str
+    password: str
 
-# Create the model for when a new user registers
-class Register_User (BaseModel):
-            username: Annotated[
-            str,
-            Form(),
-        ]
-            email: Annotated[
-            str,
-            Form(),
-        ]
-            password: Annotated[
-            str,
-            Form(),
-        ]
+# Model for user registration
+class RegisterUser(BaseModel):
+    username: Annotated[str, Form()]
+    email: Annotated[str, Form()]
+    password: Annotated[str, Form()]
 
-# Create the model for Shipping Details
+# ShippingDetails model
 class ShippingDetails(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
@@ -34,8 +25,11 @@ class ShippingDetails(SQLModel, table=True):
     state: str
     postal_code: str
     country: str
+    user: Optional[User] = Relationship(back_populates="shipping_details")
 
-# Create the model for when a new shipping detail is provided
+User.shipping_details = Relationship(back_populates="user")
+
+# Model for creating new shipping details
 class CreateShippingDetails(BaseModel):
     address: Annotated[str, Form()]
     city: Annotated[str, Form()]
@@ -43,7 +37,7 @@ class CreateShippingDetails(BaseModel):
     postal_code: Annotated[str, Form()]
     country: Annotated[str, Form()]
 
-# Create the model for updating shipping details
+# Model for updating shipping details
 class UpdateShippingDetails(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
@@ -51,8 +45,9 @@ class UpdateShippingDetails(BaseModel):
     postal_code: Optional[str] = None
     country: Optional[str] = None
 
-class TokenData (BaseModel):
-        username:str
+class TokenData(BaseModel):
+    username: str
+    email: str
 
 # # Create the model for Roles
 # class Role(SQLModel, table=True):

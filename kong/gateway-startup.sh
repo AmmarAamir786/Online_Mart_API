@@ -81,4 +81,18 @@ curl -i -X POST $KONG_ADMIN_URL/services/user-service/routes \
     --data "paths[]=/user-service" \
     --data "strip_path=true"
 
-echo "All services and routes have been registered successfully."
+# Enable JWT Plugin for the user-service
+curl -i -X POST $KONG_ADMIN_URL/services/user-service/plugins \
+    --data "name=jwt"
+
+# Add a consumer (optional, based on your user management strategy)
+# Here we add a consumer that represents our user-service client
+curl -i -X POST $KONG_ADMIN_URL/consumers/ \
+    --data "username=user_service_consumer"
+
+# Create a JWT credential for the user_service_consumer
+curl -i -X POST $KONG_ADMIN_URL/consumers/user_service_consumer/jwt \
+    --data "key=<your-unique-key>" \
+    --data "secret=<your-unique-secret>"
+
+echo "All services, routes, and JWT plugin configurations have been registered successfully."
