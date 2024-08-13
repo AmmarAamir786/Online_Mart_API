@@ -267,6 +267,7 @@ services:
       - kong_postgres_password
     restart: on-failure
 #===============================================================================================
+
   kong:
     image: "${KONG_DOCKER_TAG:-kong:latest}"
     user: "${KONG_USER:-kong}"
@@ -348,3 +349,6 @@ networks:
 secrets:
   kong_postgres_password:
     file: ./POSTGRES_PASSWORD
+
+
+#huigbuibubfirubvwuoefb
