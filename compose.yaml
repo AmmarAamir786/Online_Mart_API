@@ -14,7 +14,7 @@ services:
   product-service:
     build:
       context: ./product-service
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile
     volumes:
       - ./product-service:/app  # Sync local development directory with the container
     depends_on:
@@ -311,13 +311,13 @@ services:
     security_opt:
       - no-new-privileges
 
-  gateway-setup:
-    build:
-      context: ./kong
-      dockerfile: Dockerfile
-    volumes:
-      - ./kong/gateway-startup.sh:/app/gateway-startup.sh
-    entrypoint: ["/bin/sh", "/app/gateway-startup.sh"]
+  # gateway-setup:
+  #   build:
+  #     context: ./kong
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./kong/gateway-startup.sh:/app/gateway-startup.sh
+  #   entrypoint: ["/bin/sh", "/app/gateway-startup.sh"]
 
 volumes:
   # product_db:
