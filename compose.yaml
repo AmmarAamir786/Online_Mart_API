@@ -24,138 +24,138 @@ services:
     ports:
       - "8011:8011"  # Expose container port right to host port left 
 
-  product-consumer-service:
-    build:
-      context: ./product-consumer-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./product-consumer-service:/app  # Sync local development directory with the container
-    depends_on:
-      - product_db
-      - broker
-      # - schema-registry
-    ports:
-      - "8012:8012"  # Expose container port right to host port left 
+  # product-consumer-service:
+  #   build:
+  #     context: ./product-consumer-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./product-consumer-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - product_db
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8012:8012"  # Expose container port right to host port left 
 
 
-  product_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: Product_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=product_db
-    ports:
-        - '5433:5432'
-    volumes:
-        - product_db:/var/lib/postgresql/data
+  # product_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: Product_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=product_db
+  #   ports:
+  #       - '5433:5432'
+  #   volumes:
+  #       - product_db:/var/lib/postgresql/data
         
 
-  order-service:
-    build:
-      context: ./order-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./order-service:/app  # Sync local development directory with the container
-    depends_on:
-      - kafka-ui
-      - broker
-    ports:
-      - "8013:8013"  # Expose container port right to host port left
+  # order-service:
+  #   build:
+  #     context: ./order-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./order-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - kafka-ui
+  #     - broker
+  #   ports:
+  #     - "8013:8013"  # Expose container port right to host port left
 
-  order-consumer-service:
-    build:
-      context: ./order-consumer-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./order-consumer-service:/app  # Sync local development directory with the container
-    depends_on:
-      - order_db
-      - broker
-      # - schema-registry
-    ports:
-      - "8014:8014"  # Expose container port right to host port left  
+  # order-consumer-service:
+  #   build:
+  #     context: ./order-consumer-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./order-consumer-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - order_db
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8014:8014"  # Expose container port right to host port left  
 
-  order_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: Order_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=order_db
-    ports:
-        - '5434:5432'
-    volumes:
-        - order_db:/var/lib/postgresql/data
-
-
-  inventory-service:
-    build:
-      context: ./inventory-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./inventory-service:/app  # Sync local development directory with the container
-    depends_on:
-      - kafka-ui
-      - broker
-      # - schema-registry
-    ports:
-      - "8015:8015"  # Expose container port right to host port left 
-
-  inventory-consumer-service:
-    build:
-      context: ./inventory-consumer-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./inventory-consumer-service:/app  # Sync local development directory with the container
-    depends_on:
-      - inventory_db
-      - broker
-      # - schema-registry
-    ports:
-      - "8016:8016"  # Expose container port right to host port left 
-
-  inventory_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: Inventory_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=inventory_db
-    ports:
-        - '5435:5432'
-    volumes:
-        - inventory_db:/var/lib/postgresql/data
+  # order_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: Order_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=order_db
+  #   ports:
+  #       - '5434:5432'
+  #   volumes:
+  #       - order_db:/var/lib/postgresql/data
 
 
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./user-service:/app  # Sync local development directory with the container
-    depends_on:
-      - user_db
-      - broker
-      # - schema-registry
-    ports:
-      - "8017:8017"  # Expose container port right to host port left 
+  # inventory-service:
+  #   build:
+  #     context: ./inventory-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./inventory-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - kafka-ui
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8015:8015"  # Expose container port right to host port left 
 
-  user_db:
-    image: postgres:latest  # Use the official PostgreSQL image
-    restart: always
-    container_name: User_db_Cont
-    environment:
-        - POSTGRES_USER=ammar
-        - POSTGRES_PASSWORD=my_password
-        - POSTGRES_DB=user_db
-    ports:
-        - '5436:5432'
-    volumes:
-        - user_db:/var/lib/postgresql/data
+  # inventory-consumer-service:
+  #   build:
+  #     context: ./inventory-consumer-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./inventory-consumer-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - inventory_db
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8016:8016"  # Expose container port right to host port left 
+
+  # inventory_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: Inventory_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=inventory_db
+  #   ports:
+  #       - '5435:5432'
+  #   volumes:
+  #       - inventory_db:/var/lib/postgresql/data
+
+
+  # user-service:
+  #   build:
+  #     context: ./user-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./user-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - user_db
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8017:8017"  # Expose container port right to host port left 
+
+  # user_db:
+  #   image: postgres:latest  # Use the official PostgreSQL image
+  #   restart: always
+  #   container_name: User_db_Cont
+  #   environment:
+  #       - POSTGRES_USER=ammar
+  #       - POSTGRES_PASSWORD=my_password
+  #       - POSTGRES_DB=user_db
+  #   ports:
+  #       - '5436:5432'
+  #   volumes:
+  #       - user_db:/var/lib/postgresql/data
 
 
   broker:
@@ -320,14 +320,14 @@ services:
     entrypoint: ["/bin/sh", "/app/gateway-startup.sh"]
 
 volumes:
-  product_db:
-    driver: local
-  order_db:
-    driver: local
-  inventory_db:
-    driver: local
-  user_db:
-    driver: local
+  # product_db:
+  #   driver: local
+  # order_db:
+  #   driver: local
+  # inventory_db:
+  #   driver: local
+  # user_db:
+  #   driver: local
 
   kong_data: {}
   kong_prefix_vol:
