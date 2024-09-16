@@ -18,6 +18,3 @@ class OrderProduct(SQLModel, table=True):
 class OrderCreate(BaseModel):
     products: List[OrderProduct]
 
-# class OrderUpdate(BaseModel):
-#     order_id: str
-#     products: Optional[List[OrderProduct]] = None
