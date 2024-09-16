@@ -10,7 +10,7 @@ x-kong-config:
   KONG_PG_PASSWORD_FILE: /run/secrets/kong_postgres_password
 
 services:
-
+ 
   product-service:
     build:
       context: ./product-service
