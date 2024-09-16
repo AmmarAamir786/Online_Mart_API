@@ -14,7 +14,7 @@ services:
   product-service:
     build:
       context: ./product-service
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile 
     volumes:
       - ./product-service:/app  # Sync local development directory with the container
     depends_on:
