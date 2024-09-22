@@ -11,18 +11,18 @@ x-kong-config:
 
 services:
  
-  product-service:
-    build:
-      context: ./product-service
-      dockerfile: Dockerfile
-    volumes:
-      - ./product-service:/app  # Sync local development directory with the container
-    depends_on:
-      - kafka-ui
-      - broker
-      # - schema-registry
-    ports:
-      - "8011:8011"  # Expose container port right to host port left 
+  # product-service:
+  #   build:
+  #     context: ./product-service
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./product-service:/app  # Sync local development directory with the container
+  #   depends_on:
+  #     - kafka-ui
+  #     - broker
+  #     # - schema-registry
+  #   ports:
+  #     - "8011:8011"  # Expose container port right to host port left 
 
   # product-consumer-service:
   #   build:
